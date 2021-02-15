@@ -11,6 +11,7 @@ file(GLOB_RECURSE SOURCE_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/cpp/*.h)
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/vendor")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/vendor/ovr_sdk_mobile/VrApi/Include")
 
 add_library(quest-demo SHARED ${SOURCE_FILES})
 target_compile_definitions(quest-demo PUBLIC XR_USE_PLATFORM_ANDROID)
@@ -21,11 +22,15 @@ target_include_directories(quest-demo PRIVATE ${ANDROID_NDK}/sources/android/nat
 add_library(openxr-loader SHARED IMPORTED)
 set_target_properties(openxr-loader PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/libopenxr_loader.so)
 
+add_library(ovr-loader SHARED IMPORTED)
+set_target_properties(ovr-loader PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ovr_sdk_mobile/VrApi/Libs/Android/arm64-v8a/Release/libvrapi.so)
+
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 target_link_libraries(
         quest-demo
         openxr-loader
+        ovr-loader
         android
         native_app_glue
         log

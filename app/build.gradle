@@ -7,7 +7,7 @@ android {
 	buildToolsVersion "30.0.2"
 	ndkVersion '21.3.6528147'
 	defaultConfig {
-		applicationId "app.artyomd.questdemo"
+		applicationId 'app.upstairs.quest_sample_project'
 		minSdkVersion 24
 		targetSdkVersion 24
 		versionCode 1
