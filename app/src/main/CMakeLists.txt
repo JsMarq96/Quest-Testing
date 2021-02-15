@@ -34,4 +34,6 @@ target_link_libraries(
         android
         native_app_glue
         log
-        vulkan)
+        vulkan
+        GLESv3
+        EGL)
