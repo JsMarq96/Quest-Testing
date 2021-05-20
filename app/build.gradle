@@ -5,7 +5,7 @@ plugins {
 android {
 	compileSdkVersion 24
 	buildToolsVersion "30.0.2"
-	ndkVersion '21.3.6528147'
+	ndkVersion '22.1.7171670'
 	defaultConfig {
 		applicationId 'app.upstairs.quest_sample_project'
 		minSdkVersion 24
