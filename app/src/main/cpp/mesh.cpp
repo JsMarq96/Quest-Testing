@@ -4,6 +4,7 @@
 
 #include "mesh.h"
 
+// NOTE: this only works for TRIANGLE ONLY meshes
 void
 load_mesh(sMesh        *result,
           const char*   mesh_file_dir) {
@@ -56,9 +57,10 @@ load_mesh(sMesh        *result,
         } else if (line_buffer[0] == 'f') {
             // TODO: HORRIBLE TO REWORK BUT WANT TO GET IT DONE IM SORRY MOM
             for (int i = 0; i < 3; i++) {
-                result->faces_index[faces_index++] = (int) strtof(line_buffer, &pend);
-                result->faces_index[faces_index++] = (int) strtof(pend, NULL);
-                result->faces_index[faces_index++] = (int) strtof(pend, NULL);
+                // -1 since the obj indexes start at 1
+                result->faces_index[faces_index++] = (int) strtof(line_buffer, &pend) - 1;
+                result->faces_index[faces_index++] = (int) strtof(pend, NULL) - 1;
+                result->faces_index[faces_index++] = (int) strtof(pend, NULL) - 1;
             }
         }
     }
