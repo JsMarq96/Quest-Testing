@@ -27,6 +27,7 @@ struct sMesh {
         sGlVertex      *vertex_list;
     };
     unsigned int    vertex_count = 0;
+    unsigned int    raw_vertex_size = 0;
 
     unsigned int   *faces_index = nullptr;
     unsigned int    indices_cout = 0;

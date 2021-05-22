@@ -34,6 +34,7 @@ load_mesh(sMesh        *result,
     // Allocate the memmory
     result->vertex_list = (sGlVertex*) malloc(sizeof(sGlVertex) * v_count);
     result->vertex_count = v_count;
+    result->raw_vertex_size = v_count * 5;
     result->faces_index = (unsigned int*) malloc(sizeof(float) * f_count * 9);
     result->indices_cout = f_count * 9;
 
