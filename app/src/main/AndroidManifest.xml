@@ -8,6 +8,7 @@
     <uses-feature
         android:name="android.hardware.vr.headtracking"
         android:required="true" />
+    <uses-permission android:name="android.permission.WRITE_STORAGE"/>
 
     <application
         android:allowBackup="true"
