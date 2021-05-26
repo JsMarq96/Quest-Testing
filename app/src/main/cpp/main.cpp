@@ -11,16 +11,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <android/asset_manager.h>
+
+#include <zip.h>
 
 #include "math.h"
 #include "shader.h"
-
 #include "display_layer.h"
 #include "basic_renderer.h"
 #include "basic_geometry.h"
 #include "framebuffer.h"
 #include "shader_program.h"
 #include "common.h"
+#include "frame_renderer.h"
+#include "mesh.h"
+#include "mesh_renderer.h"
+#include "asset_extractor.h"
 
 struct app
 {
@@ -166,10 +172,28 @@ android_main(struct android_app* android_app)
                                    0);
 
     info("attach current thread");
+
     ovrJava java;
     java.Vm = android_app->activity->vm;
     (java.Vm)->AttachCurrentThread(&java.Env, NULL);
     java.ActivityObject = android_app->activity->clazz;
+
+    ANativeActivity* activity = android_app->activity;
+
+    sAssMan ass_man;
+    init_asset_manager(&ass_man, java.Env, activity);
+    info("Looked up root storage: %s", ass_man.root_dir);
+    info("Looked up apk path: %s", ass_man.apk_dir);
+    //ass_man.root_dir = "/data/data/app.upstairs.quest_sample_project/";
+
+    if (!check_asset(&ass_man,"/res/raw/player_2.obj")) {
+        extract_asset(&ass_man,
+                      "res/raw/player_2.obj");
+        info("Asset extracted");
+    } else {
+        info("Asset is found");
+    }
+
 
     info("initialize vr api");
     const ovrInitParms init_parms = vrapi_DefaultInitParms(&java);
@@ -184,6 +208,14 @@ android_main(struct android_app* android_app)
 
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
+
+    // Load example mesh
+    sMesh player_mesh;
+
+    char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
+
+    load_mesh(&player_mesh, res_size);
+
     while (!android_app->destroyRequested) {
 
         // Check for events, mainly for shutting down or initializing the OVR runtime

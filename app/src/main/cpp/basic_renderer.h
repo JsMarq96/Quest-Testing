@@ -13,6 +13,7 @@
 #include "framebuffer.h"
 #include "basic_renderer.h"
 #include "basic_geometry.h"
+#include "mesh_renderer.h"
 
 struct renderer
 {

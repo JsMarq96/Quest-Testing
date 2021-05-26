@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+
 #include "math.h"
 
 /**
@@ -25,6 +26,7 @@ struct sShader {
     void load_shaders(const char* vertex_shader, const char* frag_shader_dir);
 
     void enable() const;
+    void disable() const { glUseProgram(0); };
 
     // Setters for the shader's uniforms
     void set_uniform(const char* name, const float value) const;

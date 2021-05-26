@@ -13,8 +13,12 @@ framebuffer_create(struct framebuffer* framebuffer,GLsizei width,
     framebuffer->height = height;
 
     info("create color texture swap chain");
-    framebuffer->color_texture_swap_chain = vrapi_CreateTextureSwapChain3(
-            VRAPI_TEXTURE_TYPE_2D, GL_RGBA8, width, height, 1, 3);
+    framebuffer->color_texture_swap_chain = vrapi_CreateTextureSwapChain3(VRAPI_TEXTURE_TYPE_2D,
+                                                                          GL_RGBA8,
+                                                                          width,
+                                                                          height,
+                                                                          1,
+                                                                          3);
     if (framebuffer->color_texture_swap_chain == NULL) {
         error("can't create color texture swap chain");
         exit(EXIT_FAILURE);

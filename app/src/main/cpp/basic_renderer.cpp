@@ -4,7 +4,7 @@
 
 #include "basic_renderer.h"
 
- void
+void
 renderer_create(struct renderer* renderer, GLsizei width, GLsizei height)
 {
     // Initialize the framebuffers for each eye
@@ -17,7 +17,7 @@ renderer_create(struct renderer* renderer, GLsizei width, GLsizei height)
     geometry_create(&renderer->geometry);
 }
 
- void
+void
 renderer_destroy(struct renderer* renderer)
 {
     geometry_destroy(&renderer->geometry);
@@ -26,8 +26,8 @@ renderer_destroy(struct renderer* renderer)
         framebuffer_destroy(&renderer->framebuffers[i]);
     }
 }
-
- ovrLayerProjection2
+//struct sMeshRenderer* mesh_renderer
+ovrLayerProjection2
 renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
 {
     ovrMatrix4f model_matrix = ovrMatrix4f_CreateTranslation(0.0, 0.0, -1.0);
@@ -59,7 +59,6 @@ renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
                 ovrMatrix4f_TanAngleMatrixFromProjection(
                         &tracking->Eye[i].ProjectionMatrix);
 
-        // TODO: use a bit more actual OpenGL
         glBindFramebuffer(
                 GL_DRAW_FRAMEBUFFER,
                 framebuffer->framebuffers[framebuffer->swap_chain_index]);
@@ -72,6 +71,21 @@ renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
         glClearColor(0.0, 0.0, 0.0, 0.0);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        /*
+         * glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
+                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
+
+        mesh_renderer->shader.enable();
+        mesh_renderer->shader.set_uniform_matrix4("u_model_mat", (sMat44*) &model_matrix);
+        mesh_renderer->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
+        mesh_renderer->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
+
+        glBindVertexArray(mesh_renderer->VAO);
+        glDrawElements(GL_TRIANGLES, mesh_renderer->origin_mesh->indices_cout, GL_UNSIGNED_INT, NULL);
+        glBindVertexArray(0);
+        mesh_renderer->shader.disable();*/
+
         glUseProgram(renderer->program.program);
         glUniformMatrix4fv(
                 renderer->program.uniform_locations[UNIFORM_MODEL_MATRIX], 1,
@@ -86,6 +100,9 @@ renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
         glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_SHORT, NULL);
         glBindVertexArray(0);
         glUseProgram(0);
+
+
+
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glScissor(0, 0, 1, framebuffer->height);

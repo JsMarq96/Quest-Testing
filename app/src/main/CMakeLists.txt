@@ -12,10 +12,13 @@ file(GLOB_RECURSE SOURCE_FILES
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/vendor")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/vendor/ovr_sdk_mobile/VrApi/Include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/vendor/libzip/include")
 
 add_library(quest-demo SHARED ${SOURCE_FILES})
+target_include_directories(quest-demo PRIVATE libzip ${ANDROID_NDK}/sources/android/native_app_glue)
 
-target_include_directories(quest-demo PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue)
+add_library(libzip SHARED IMPORTED)
+set_target_properties(libzip PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libzip/libs/arm64-v8a/libzip.so)
 
 add_library(ovr-loader SHARED IMPORTED)
 set_target_properties(ovr-loader PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/vendor/ovr_sdk_mobile/VrApi/Libs/Android/arm64-v8a/Release/libvrapi.so)
@@ -24,6 +27,7 @@ set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_o
 
 target_link_libraries(
         quest-demo
+        libzip
         ovr-loader
         android
         native_app_glue
