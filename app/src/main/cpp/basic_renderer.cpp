@@ -72,30 +72,16 @@ renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /*
-         * glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
-                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
-
-        mesh_renderer->shader.enable();
-        mesh_renderer->shader.set_uniform_matrix4("u_model_mat", (sMat44*) &model_matrix);
-        mesh_renderer->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
-        mesh_renderer->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
-
-        glBindVertexArray(mesh_renderer->VAO);
-        glDrawElements(GL_TRIANGLES, mesh_renderer->origin_mesh->indices_cout, GL_UNSIGNED_INT, NULL);
-        glBindVertexArray(0);
-        mesh_renderer->shader.disable();*/
-
         glUseProgram(renderer->program.program);
         glUniformMatrix4fv(
                 renderer->program.uniform_locations[UNIFORM_MODEL_MATRIX], 1,
-                GL_FALSE, (const GLfloat*)&model_matrix);
+                GL_FALSE, (const GLfloat*) &model_matrix);
         glUniformMatrix4fv(
                 renderer->program.uniform_locations[UNIFORM_VIEW_MATRIX], 1,
-                GL_FALSE, (const GLfloat*)&view_matrix);
+                GL_FALSE, (const GLfloat*) &view_matrix);
         glUniformMatrix4fv(
                 renderer->program.uniform_locations[UNIFORM_PROJECTION_MATRIX], 1,
-                GL_FALSE, (const GLfloat*)&projection_matrix);
+                GL_FALSE, (const GLfloat*) &projection_matrix);
         glBindVertexArray(renderer->geometry.vertex_array);
         glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_SHORT, NULL);
         glBindVertexArray(0);

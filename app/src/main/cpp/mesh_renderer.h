@@ -21,7 +21,7 @@ struct sMeshRenderer {
 
     sShader         shader;
 
-    sMesh           *origin_mesh;
+    const sMesh           *origin_mesh;
 };
 
 void render_init(sMeshRenderer  *renderer,

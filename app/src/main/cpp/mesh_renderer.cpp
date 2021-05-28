@@ -8,6 +8,8 @@
 void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static) {
+    renderer->origin_mesh = raw_mesh;
+
     glGenVertexArrays(1, &renderer->VAO);
     glGenBuffers(1, &renderer->VBO);
     glGenBuffers(1, &renderer->EBO);
@@ -44,7 +46,6 @@ void render_init(sMeshRenderer  *renderer,
                           2 * sizeof(float),
                           (void*) (sizeof(float) * 3));
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
@@ -56,9 +57,6 @@ void render_mesh(framebuffer         *framebuffer,
         ovrMatrix4f view_matrix = ovrMatrix4f_Transpose(&tracking->Eye[i].ViewMatrix);
         ovrMatrix4f projection_matrix = ovrMatrix4f_Transpose(&tracking->Eye[i].ProjectionMatrix);
 
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
-                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
-
         renderer->shader.enable();
 
         renderer->shader.set_uniform_matrix4("u_model_mat", model_mat);
@@ -69,9 +67,9 @@ void render_mesh(framebuffer         *framebuffer,
         glDrawElements(GL_TRIANGLES, renderer->origin_mesh->indices_cout, GL_UNSIGNED_INT, NULL);
         glBindVertexArray(0);
 
-        renderer->shader.disable();
+        info("Rendered %i indexes with %i vertex", renderer->origin_mesh->indices_cout, renderer->origin_mesh->vertex_count);
 
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        renderer->shader.disable();
     }
 }
 

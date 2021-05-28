@@ -28,6 +28,8 @@
 #include "mesh_renderer.h"
 #include "asset_extractor.h"
 
+#include "raw_shaders.h"
+
 struct app
 {
     ovrJava* java;
@@ -146,8 +148,7 @@ app_create(struct app* app, ovrJava* java)
     app->java = java;
     egl_create(&app->egl);
     renderer_create(&app->renderer,
-                    vrapi_GetSystemPropertyInt(
-                            java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
+                    vrapi_GetSystemPropertyInt( java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
                     vrapi_GetSystemPropertyInt(
                             java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_HEIGHT));
     app->resumed = false;
@@ -211,10 +212,28 @@ android_main(struct android_app* android_app)
 
     // Load example mesh
     sMesh player_mesh;
-
     char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
-
     load_mesh(&player_mesh, res_size);
+
+    info("tok test %f", strtof("0.098828", NULL));
+
+    info("player mesh test 1 %f, %f %f", player_mesh.raw_vertex_list[0],player_mesh.raw_vertex_list[1],player_mesh.raw_vertex_list[2]);
+    info("player mesh test 2 %i, %i %i", player_mesh.faces_index[0],player_mesh.faces_index[1],player_mesh.faces_index[2]);
+
+    // Create renderer
+    // TODO: Merge Mesh and renderer
+    sMeshRenderer mesh_renderer;
+    mesh_renderer.shader.load_shaders(basic_vertex_shader,
+                                      basic_frag_shader);
+    render_init(&mesh_renderer,
+                &player_mesh,
+                true);
+
+    // Create frame renderer
+    sFrameRenderer frame_renderer;
+    init_frame_renderer(&frame_renderer,
+                        vrapi_GetSystemPropertyInt(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
+                        vrapi_GetSystemPropertyInt(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_HEIGHT));
 
     while (!android_app->destroyRequested) {
 
@@ -254,15 +273,43 @@ android_main(struct android_app* android_app)
         const double display_time =
                 vrapi_GetPredictedDisplayTime(app.ovr, app.frame_index);
 
+
+        sMat44 model_mat;
+        model_mat.set_position(sVector3{0.0f, 0.0f, -1.0f});
+        ovrMatrix4f model_matrix = ovrMatrix4f_CreateTranslation(0.0, 0.0, -1.0);
+        model_matrix = ovrMatrix4f_Transpose(&model_matrix);// Why the transpose?
+
+        /*info("---------------");
+        for (int i = 0; i < 4; i++) {
+            info(" - %f %f %f %f -", model_matrix.M[i][0],model_matrix.M[i][1],model_matrix.M[i][2],model_matrix.M[i][4]);
+        }
+        info("---------------");
+        for (int i = 0; i < 4; i++) {
+            info(" - %f %f %f %f -", model_mat.mat_values[i][0],model_mat.mat_values[i][1],model_mat.mat_values[i][2],model_mat.mat_values[i][4]);
+        }
+        info("---------------");*/
+
         // Get the prediccted tracking positions for controllersm and the projection
         // matrices for each eye
         ovrTracking2 tracking =
                 vrapi_GetPredictedTracking2(app.ovr, display_time);
 
-        const ovrLayerProjection2 layer =
-                renderer_render_frame(&app.renderer, &tracking);
+        // Creates a world view layer and configures it
+        ovrLayerProjection2 layer = vrapi_DefaultLayerProjection2();
+        layer.Header.Flags |=
+                VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
+        layer.HeadPose = tracking.HeadPose;
 
-        const ovrLayerHeader2* layers[] = { &layer.Header };
+
+        //layer = renderer_render_frame(&app.renderer, &tracking);
+        render_frame(&frame_renderer,
+                     &mesh_renderer,
+                     &model_mat,
+                     1,
+                     &tracking);
+
+        //const ovrLayerHeader2* layers[] = { &layer.Header };
+        const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
 
         ovrSubmitFrameDescription2 frame;
         frame.Flags = 0;

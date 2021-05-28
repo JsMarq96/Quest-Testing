@@ -4,13 +4,22 @@
 
 #include "frame_renderer.h"
 
-/// TODO: NEXT DEFINIR FRAME RENDERE ESTRUCTURA Y TERMINARLO
+/// TODO: Crear destructor
 
+void init_frame_renderer(sFrameRenderer *frame_rend,
+                         const unsigned int width,
+                         const unsigned int height) {
+    for (int i = 0; i < VRAPI_FRAME_LAYER_EYE_MAX; ++i) {
+        framebuffer_create(&frame_rend->framebuffers[i], width, height);
+    }
+}
 
 void render_frame(sFrameRenderer *frame_render,
                   const sMeshRenderer *renderers,
+                  const sMat44 *models,
                   const unsigned int mesh_count,
                   const ovrTracking2* tracking) {
+    frame_render->frame_layer = vrapi_DefaultLayerProjection2();
     frame_render->frame_layer.Header.Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
     frame_render->frame_layer.HeadPose = tracking->HeadPose;
 
@@ -31,14 +40,14 @@ void render_frame(sFrameRenderer *frame_render,
         glEnable(GL_SCISSOR_TEST);
         glViewport(0, 0, framebuffer->width, framebuffer->height);
         glScissor(0, 0, framebuffer->width, framebuffer->height);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClearColor(0.0, 0.0, 1.0, 0.5);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         for (int j = 0; j < mesh_count; j++) {
             render_mesh(framebuffer,
                         &renderers[j],
-                        (sMat44*) NULL,
+                        (sMat44*) &models[j],
                         tracking);
         }
 
