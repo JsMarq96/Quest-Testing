@@ -15,8 +15,8 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
 }
 
 void render_frame(sFrameRenderer *frame_render,
-                  const sMeshRenderer *renderers,
-                  const sMat44 *models,
+                  const sMeshRenderer **renderers,
+                  const sMat44 **models,
                   const unsigned int mesh_count,
                   const ovrTracking2* tracking) {
     frame_render->frame_layer = vrapi_DefaultLayerProjection2();
@@ -35,7 +35,7 @@ void render_frame(sFrameRenderer *frame_render,
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
                           framebuffer->framebuffers[framebuffer->swap_chain_index]);
 
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_SCISSOR_TEST);
         glViewport(0, 0, framebuffer->width, framebuffer->height);
@@ -46,9 +46,10 @@ void render_frame(sFrameRenderer *frame_render,
 
         for (int j = 0; j < mesh_count; j++) {
             render_mesh(framebuffer,
-                        &renderers[j],
-                        (sMat44*) &models[j],
-                        tracking);
+                        renderers[j],
+                        models[j],
+                        tracking,
+                        i);
         }
 
         glClearColor(0.0, 0.0, 0.0, 1.0);

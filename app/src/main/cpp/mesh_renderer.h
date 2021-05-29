@@ -31,7 +31,8 @@ void render_init(sMeshRenderer  *renderer,
 void render_mesh(framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
                  const sMat44        *model_mat,
-                 const ovrTracking2  *tracking);
+                 const ovrTracking2  *tracking,
+                 const unsigned int   eye);
 
 void render_destroy();
 #endif //QUEST_DEMO_MESH_RENDERER_H

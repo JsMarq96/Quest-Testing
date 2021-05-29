@@ -22,8 +22,8 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
                          const unsigned int height);
 
 void render_frame(sFrameRenderer *frame_render,
-                  const sMeshRenderer *renderers,
-                  const sMat44 *models,
+                  const sMeshRenderer **renderers,
+                  const sMat44 **models,
                   const unsigned int mesh_count,
                   const ovrTracking2* tracking);
 

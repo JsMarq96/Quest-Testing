@@ -195,6 +195,14 @@ android_main(struct android_app* android_app)
         info("Asset is found");
     }
 
+    if (!check_asset(&ass_man,"/res/raw/cube.obj")) {
+        extract_asset(&ass_man,
+                      "res/raw/cube.obj");
+        info("Asset cube extracted");
+    } else {
+        info("Asset cube is found");
+    }
+
 
     info("initialize vr api");
     const ovrInitParms init_parms = vrapi_DefaultInitParms(&java);
@@ -215,19 +223,33 @@ android_main(struct android_app* android_app)
     char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
     load_mesh(&player_mesh, res_size);
 
-    info("tok test %f", strtof("0.098828", NULL));
+    sMesh cube_mesh;
+    char *cube_res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/cube.obj";
+    load_mesh(&cube_mesh, cube_res_size);
 
-    info("player mesh test 1 %f, %f %f", player_mesh.raw_vertex_list[0],player_mesh.raw_vertex_list[1],player_mesh.raw_vertex_list[2]);
-    info("player mesh test 2 %i, %i %i", player_mesh.faces_index[0],player_mesh.faces_index[1],player_mesh.faces_index[2]);
 
     // Create renderer
-    // TODO: Merge Mesh and renderer
     sMeshRenderer mesh_renderer;
     mesh_renderer.shader.load_shaders(basic_vertex_shader,
                                       basic_frag_shader);
     render_init(&mesh_renderer,
                 &player_mesh,
                 true);
+
+    sMeshRenderer cube_renderer;
+    mesh_renderer.shader.load_shaders(basic_vertex_shader,
+                                      basic_frag_shader);
+    render_init(&cube_renderer,
+                &cube_mesh,
+                true);
+
+    sMeshRenderer *render_list[2] = {&cube_renderer, &mesh_renderer};
+
+    sMat44 model_mat, cube_model_mat;
+    model_mat.set_position(sVector3{0.f, 0.0f, -1.0f});
+    cube_model_mat.set_position(sVector3{0.0f, -1.0f, -1.0f});
+
+    sMat44 *models[2] = {&cube_model_mat, &model_mat};
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -274,21 +296,6 @@ android_main(struct android_app* android_app)
                 vrapi_GetPredictedDisplayTime(app.ovr, app.frame_index);
 
 
-        sMat44 model_mat;
-        model_mat.set_position(sVector3{0.0f, 0.0f, -1.0f});
-        ovrMatrix4f model_matrix = ovrMatrix4f_CreateTranslation(0.0, 0.0, -1.0);
-        model_matrix = ovrMatrix4f_Transpose(&model_matrix);// Why the transpose?
-
-        /*info("---------------");
-        for (int i = 0; i < 4; i++) {
-            info(" - %f %f %f %f -", model_matrix.M[i][0],model_matrix.M[i][1],model_matrix.M[i][2],model_matrix.M[i][4]);
-        }
-        info("---------------");
-        for (int i = 0; i < 4; i++) {
-            info(" - %f %f %f %f -", model_mat.mat_values[i][0],model_mat.mat_values[i][1],model_mat.mat_values[i][2],model_mat.mat_values[i][4]);
-        }
-        info("---------------");*/
-
         // Get the prediccted tracking positions for controllersm and the projection
         // matrices for each eye
         ovrTracking2 tracking =
@@ -303,9 +310,9 @@ android_main(struct android_app* android_app)
 
         //layer = renderer_render_frame(&app.renderer, &tracking);
         render_frame(&frame_renderer,
-                     &mesh_renderer,
-                     &model_mat,
-                     1,
+                     (const sMeshRenderer **)render_list,
+                     (const sMat44 **) models,
+                     2,
                      &tracking);
 
         //const ovrLayerHeader2* layers[] = { &layer.Header };
