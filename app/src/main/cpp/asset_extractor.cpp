@@ -20,11 +20,11 @@ void init_asset_manager(sAssMan *ass_manager,
     ass_manager->root_dir = "/data/data/app.upstairs.quest_sample_project"; //(const char*) malloc(strlen(activity->internalDataPath) + 2);
 
     // Test if teh folder where we are going to store the assets exists, and if not, create them
-    char *temp_dir = (char*) malloc(strlen(ass_manager->root_dir) + 8 + 1);
+    char *temp_dir = (char*) malloc(strlen(ass_manager->root_dir) + 8 + 8 + 1);
     strcpy(temp_dir, ass_manager->root_dir);
 
-    char *file_struct[2] = { "/res", "/raw"};
-    for(int  i = 0; i < 2; i++) {
+    char *file_struct[3] = { "/res", "/raw", "/skybox"};
+    for(int  i = 0; i < 3; i++) {
         strcat(temp_dir, file_struct[i]);
 
         if (access(temp_dir, F_OK)) {
@@ -56,6 +56,7 @@ void extract_asset(sAssMan *ass_manager,
     struct zip_stat apk_zip_st;
     FILE *dump_file;
 
+    info("Asset name: %s", asset_name);
     info("APK_dir: %s", ass_manager->apk_dir);
     zip *apk = zip_open(ass_manager->apk_dir, 0, &err_code);
 
@@ -65,6 +66,8 @@ void extract_asset(sAssMan *ass_manager,
     zip_stat(apk, asset_name, 0, &apk_zip_st);
 
     char* raw_file = (char*) malloc(apk_zip_st.size);
+
+    info("Size %i", apk_zip_st.size);
 
     zip_file *file = zip_fopen(apk, asset_name, 0);
     zip_fread(file, raw_file, apk_zip_st.size);
@@ -77,14 +80,14 @@ void extract_asset(sAssMan *ass_manager,
     strcat(asset_dir, asset_name);
     //asset_dir[strlen(ass_manager->root_dir) + asset_name_len] = '\0';
 
-    dump_file = fopen(asset_dir, "w");
+    dump_file = fopen(asset_dir, "wb");
 
     info("Error: %d (%s)", errno, strerror(errno));
 
     assert(dump_file != NULL && "Cannot open file to store asset");
 
     info("size escrito: %i", fputs(raw_file, dump_file));
-    info("size escr: %s", raw_file);
+    //info("size escr: %s", raw_file);
 
     zip_fclose(file);
     fclose(dump_file);

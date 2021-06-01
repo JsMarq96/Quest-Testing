@@ -19,14 +19,18 @@ struct sMeshRenderer {
     unsigned int    VBO;
     unsigned int    EBO;
 
-    sShader         shader;
+    const sMesh     *origin_mesh;
+    int             indices_count = 0;
 
-    const sMesh           *origin_mesh;
+    sShader         shader;
 };
 
 void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static);
+
+void render_init_cubemap(sMeshRenderer  *renderer,
+                         const bool     is_static);
 
 void render_mesh(framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
@@ -34,5 +38,5 @@ void render_mesh(framebuffer         *framebuffer,
                  const ovrTracking2  *tracking,
                  const unsigned int   eye);
 
-void render_destroy();
+void render_destroy(sMeshRenderer  *renderer);
 #endif //QUEST_DEMO_MESH_RENDERER_H

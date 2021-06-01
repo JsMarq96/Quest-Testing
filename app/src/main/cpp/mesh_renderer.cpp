@@ -9,6 +9,7 @@ void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static) {
     renderer->origin_mesh = raw_mesh;
+    renderer->indices_count = renderer->origin_mesh->indices_cout;
 
     glGenVertexArrays(1, &renderer->VAO);
     glGenBuffers(1, &renderer->VBO);
@@ -49,6 +50,8 @@ void render_init(sMeshRenderer  *renderer,
     glBindVertexArray(0);
 }
 
+
+
 void render_mesh(framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
                  const sMat44        *model_mat,
@@ -65,15 +68,19 @@ void render_mesh(framebuffer         *framebuffer,
     renderer->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
     renderer->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
 
-    glDrawElements(GL_TRIANGLES, renderer->origin_mesh->indices_cout, GL_UNSIGNED_INT, NULL);
+    glDrawElements(GL_TRIANGLES, renderer->indices_count, GL_UNSIGNED_INT, NULL);
 
-    info("Rendered %i indexes with %i vertex", renderer->origin_mesh->indices_cout, renderer->origin_mesh->vertex_count);
+    info("Rendered %i indexes with %i vertex", renderer->indices_count, renderer->origin_mesh->vertex_count);
 
     renderer->shader.disable();
 
     glBindVertexArray(0);
 }
 
-void render_destroy() {
+void render_destroy(sMeshRenderer  *renderer) {
+    glDeleteVertexArrays(1, &renderer->VAO);
+    glDeleteBuffers(1, &renderer->VBO);
+    glDeleteBuffers(1, &renderer->EBO);
 
+    // Delete shader
 }
