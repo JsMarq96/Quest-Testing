@@ -29,4 +29,30 @@ static const char basic_frag_shader[] = "#version 300 es\n"
                                         "	out_color = vec4(vec3(1.0, 0.0, 1.0), 1.0);\n"
                                         "}\n";
 
+static const char skybox_vertex_shader[] = "#version 300 es\n"
+                                           "layout (location = 0) in vec3 a_v_pos;\n"
+                                           "out vec3 text_coords;\n"
+                                           "\n"
+                                           "uniform mat4 u_proj_mat;\n"
+                                           "uniform mat4 u_view_mat;\n"
+                                           "\n"
+                                           "void main()\n"
+                                           "{\n"
+                                           "    text_coords = a_v_pos;\n"
+                                           "    vec4 pos = u_proj_mat * u_view_mat * vec4(a_v_pos, 1.0);\n"
+                                           "    gl_Position = pos.xyww;\n"
+                                           "}  ";
+
+static const char skybox_fragment_shader[] = "#version 300 es\n"
+                                             "out vec4 frag_col;\n"
+                                             "\n"
+                                             "in vec3 text_coords;\n"
+                                             "\n"
+                                             "uniform samplerCube skybox;\n"
+                                             "\n"
+                                             "void main()\n"
+                                             "{    \n"
+                                             "    frag_col = texture(skybox, text_coords);\n"
+                                             "}";
+
 #endif //QUEST_DEMO_RAW_SHADERS_H

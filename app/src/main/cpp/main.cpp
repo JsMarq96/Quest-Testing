@@ -27,6 +27,8 @@
 #include "mesh.h"
 #include "mesh_renderer.h"
 #include "asset_extractor.h"
+#include "texture.h"
+#include "skybox_renderer.h"
 
 #include "raw_shaders.h"
 
@@ -203,6 +205,26 @@ android_main(struct android_app* android_app)
         info("Asset cube is found");
     }
 
+    // TODO: Extract cubemap functions
+    if (!check_asset(&ass_man,"/res/raw/skybox_right.jpg")) {
+        extract_asset(&ass_man,
+                      "res/raw/skybox_right.jpg");
+        extract_asset(&ass_man,
+                      "res/raw/skybox_left.jpg");
+        extract_asset(&ass_man,
+                      "res/raw/skybox_top.jpg");
+        extract_asset(&ass_man,
+                      "res/raw/skybox_bottom.jpg");
+        extract_asset(&ass_man,
+                      "res/raw/skybox_back.jpg");
+        extract_asset(&ass_man,
+                      "res/raw/skybox_front.jpg");
+
+        info("Asset cube map extracted");
+    } else {
+        info("Asset cube map is found");
+    }
+
 
     info("initialize vr api");
     const ovrInitParms init_parms = vrapi_DefaultInitParms(&java);
@@ -227,11 +249,16 @@ android_main(struct android_app* android_app)
     char *cube_res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/cube.obj";
     load_mesh(&cube_mesh, cube_res_size);
 
+    sTexture cube_map_text;
+
+    init_texture(&cube_map_text, true, false, "/data/data/app.upstairs.quest_sample_project/res/raw/skybox_");
 
     // Create renderer
     sMeshRenderer mesh_renderer;
+    info("Test endddfin");
     mesh_renderer.shader.load_shaders(basic_vertex_shader,
                                       basic_frag_shader);
+    info("Test endddfin");
     render_init(&mesh_renderer,
                 &player_mesh,
                 true);
@@ -328,6 +355,12 @@ android_main(struct android_app* android_app)
 
         vrapi_SubmitFrame2(app.ovr, &frame);
     }
+
+    render_destroy(&cube_renderer);
+    render_destroy(&mesh_renderer);
+
+    mesh_destroy(&player_mesh);
+    mesh_destroy(&cube_mesh);
 
     app_destroy(&app);
 
