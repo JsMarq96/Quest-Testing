@@ -11,6 +11,7 @@
 
 #include "mesh_renderer.h"
 #include "framebuffer.h"
+#include "skybox_renderer.h"
 
 struct sFrameRenderer {
     framebuffer            framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
@@ -24,6 +25,7 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
 void render_frame(sFrameRenderer *frame_render,
                   const sMeshRenderer **renderers,
                   const sMat44 **models,
+                  const sSkyBoxRenderer *skybox_renderer,
                   const unsigned int mesh_count,
                   const ovrTracking2* tracking);
 

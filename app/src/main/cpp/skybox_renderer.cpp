@@ -73,6 +73,10 @@ void skybox_renderer_init(sSkyBoxRenderer  *renderer,
                           (void*) 0);
 
     glBindVertexArray(0);
+
+    renderer->texture = texture;
+
+    renderer->shader.load_shaders(skybox_vertex_shader, skybox_fragment_shader);
 }
 
 void skybox_render(const sSkyBoxRenderer    *renderer,
@@ -88,8 +92,11 @@ void skybox_render(const sSkyBoxRenderer    *renderer,
 
     renderer->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
     renderer->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
+    renderer->shader.set_uniform("skybox", 0);
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP, renderer->texture->texture_id);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, renderer->texture->texture_id);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     renderer->shader.disable();

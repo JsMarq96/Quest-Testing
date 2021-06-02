@@ -28,8 +28,7 @@ struct sSkyBoxRenderer {
 void skybox_renderer_init(sSkyBoxRenderer  *renderer,
                           sTexture         *texture);
 
-void skybox_render(framebuffer              *framebuffer,
-                   const sSkyBoxRenderer    *renderer,
+void skybox_render(const sSkyBoxRenderer    *renderer,
                    const ovrTracking2       *tracking,
                    const unsigned int       eye);
 

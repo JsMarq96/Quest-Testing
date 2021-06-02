@@ -17,6 +17,7 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
 void render_frame(sFrameRenderer *frame_render,
                   const sMeshRenderer **renderers,
                   const sMat44 **models,
+                  const sSkyBoxRenderer *skybox_renderer,
                   const unsigned int mesh_count,
                   const ovrTracking2* tracking) {
     frame_render->frame_layer = vrapi_DefaultLayerProjection2();
@@ -51,6 +52,11 @@ void render_frame(sFrameRenderer *frame_render,
                         tracking,
                         i);
         }
+        info("render skybox:");
+
+        skybox_render(skybox_renderer, tracking, i);
+
+        info("render skybox:");
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glScissor(0, 0, 1, framebuffer->height);

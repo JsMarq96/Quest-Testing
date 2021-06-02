@@ -22,8 +22,8 @@ void init_texture(sTexture  *text,
                                         "left.jpg",
                                         "top.jpg",
                                         "bottom.jpg",
-                                        "back.jpg",
-                                        "front.jpg" };
+                                        "front.jpg",
+                                        "back.jpg" };
 
         glGenTextures(1, &text->texture_id);
         glBindTexture(GL_TEXTURE_CUBE_MAP, text->texture_id);
@@ -37,8 +37,9 @@ void init_texture(sTexture  *text,
             strcat(name_buffer, texture_name);
             strcat(name_buffer, cubemap_terminations[i]);
 
-            info(" nameee: %s", name_buffer);
             raw_data = stbi_load(name_buffer, &w, &h, &l, 0);
+
+            info(" Load cubemap: %s %i %i %i", name_buffer, w, h, l);
 
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
