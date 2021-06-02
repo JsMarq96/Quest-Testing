@@ -255,10 +255,9 @@ android_main(struct android_app* android_app)
 
     // Create renderer
     sMeshRenderer mesh_renderer;
-    info("Test endddfin");
+
     mesh_renderer.shader.load_shaders(basic_vertex_shader,
                                       basic_frag_shader);
-    info("Test endddfin");
     render_init(&mesh_renderer,
                 &player_mesh,
                 true);
@@ -270,13 +269,19 @@ android_main(struct android_app* android_app)
                 &cube_mesh,
                 true);
 
-    sMeshRenderer *render_list[2] = {&cube_renderer, &mesh_renderer};
+    sSkyBoxRenderer skybox_rend;
+
+    skybox_renderer_init(&skybox_rend, &cube_map_text);
+
+    info("Skobyxyy");
+
+    sMeshRenderer *render_list[2] = {&mesh_renderer, &cube_renderer};
 
     sMat44 model_mat, cube_model_mat;
     model_mat.set_position(sVector3{0.f, 0.0f, -1.0f});
     cube_model_mat.set_position(sVector3{0.0f, -1.0f, -1.0f});
 
-    sMat44 *models[2] = {&cube_model_mat, &model_mat};
+    sMat44 *models[2] = {&model_mat, &cube_model_mat};
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -339,8 +344,11 @@ android_main(struct android_app* android_app)
         render_frame(&frame_renderer,
                      (const sMeshRenderer **)render_list,
                      (const sMat44 **) models,
-                     2,
+                     &skybox_rend,
+                     1,
                      &tracking);
+
+
 
         //const ovrLayerHeader2* layers[] = { &layer.Header };
         const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
