@@ -18,7 +18,7 @@ void init_asset_manager(sAssMan *ass_manager,
 
     // TODO: Dynamically fetch this folder or wherever you are supposed to store it
     ass_manager->root_dir = "/data/data/app.upstairs.quest_sample_project"; //(const char*) malloc(strlen(activity->internalDataPath) + 2);
-
+    ///data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj
     // Test if teh folder where we are going to store the assets exists, and if not, create them
     char *temp_dir = (char*) malloc(strlen(ass_manager->root_dir) + 8 + 8 + 1);
     strcpy(temp_dir, ass_manager->root_dir);
@@ -56,8 +56,6 @@ void extract_asset(sAssMan *ass_manager,
     struct zip_stat apk_zip_st;
     FILE *dump_file;
 
-    info("Asset name: %s", asset_name);
-    info("APK_dir: %s", ass_manager->apk_dir);
     zip *apk = zip_open(ass_manager->apk_dir, 0, &err_code);
 
     // TODO:Check errcode
@@ -66,8 +64,6 @@ void extract_asset(sAssMan *ass_manager,
     zip_stat(apk, asset_name, 0, &apk_zip_st);
 
     char* raw_file = (char*) malloc(apk_zip_st.size);
-
-    info("Size %i", apk_zip_st.size);
 
     zip_file *file = zip_fopen(apk, asset_name, 0);
     zip_fread(file, raw_file, apk_zip_st.size);
@@ -86,15 +82,16 @@ void extract_asset(sAssMan *ass_manager,
 
     assert(dump_file != NULL && "Cannot open file to store asset");
 
-    info("size escrito: %i", fputs(raw_file, dump_file));
+    info("Asset name: %s", asset_name);
+    info("Dump File: %s", asset_dir);
+    //
+    info("Size archivo: %i size escrito: %i", apk_zip_st.size, fwrite(raw_file, apk_zip_st.size, 1, dump_file));
     //info("size escr: %s", raw_file);
 
     zip_fclose(file);
     fclose(dump_file);
     zip_close(apk);
     free(raw_file);
-
-    info("apk_file size: %s", asset_dir);
 }
 
 void destroy_asset_manager(sAssMan *ass_manager) {
