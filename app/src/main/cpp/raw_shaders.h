@@ -39,7 +39,7 @@ static const char skybox_vertex_shader[] = "#version 300 es\n"
                                            "void main()\n"
                                            "{\n"
                                            "    text_coords = a_v_pos;\n"
-                                           "    vec4 pos = u_proj_mat * u_view_mat * vec4(a_v_pos, 1.0);\n"
+                                           "    vec4 pos = u_proj_mat * u_view_mat * vec4(a_v_pos * 20.0, 1.0);\n"
                                            "    gl_Position = pos.xyww;\n"
                                            "}  ";
 
