@@ -8,7 +8,7 @@
 ////  RESOURCE FUNCTIONS
 
 // TODO: add the surface normals
-int BMR_add_mesh(sBatchFrameRenderer *renderer,
+int BMR_add_mesh(sBatchMeshRenderer *renderer,
                  const sMesh         *mesh,
                  const bool          is_static) {
     unsigned int VAO, VBO, EBO;
@@ -58,7 +58,7 @@ int BMR_add_mesh(sBatchFrameRenderer *renderer,
     return renderer->last_inserted_mesh++;
 }
 
-int BMR_add_material(sBatchFrameRenderer *renderer,
+int BMR_add_material(sBatchMeshRenderer *renderer,
                      sTexture            *texture[3],
                      const char          *vertex_shader,
                      const char          *fragment_shader) {
@@ -80,7 +80,7 @@ int BMR_add_material(sBatchFrameRenderer *renderer,
 
 
 //// INSTANCES FUNCTIONS
-int BMR_add_instance(sBatchFrameRenderer  *renderer,
+int BMR_add_instance(sBatchMeshRenderer  *renderer,
                      const int             mesh_id,
                      const int             material_id,
                      const sVector3        position) {
@@ -101,7 +101,7 @@ int BMR_add_instance(sBatchFrameRenderer  *renderer,
 
 // TODO: batch togeter the rendering via instancing the same meshes
 // TODO: Frustrum culling
-void BMR_render(sBatchFrameRenderer  *renderer,
+void BMR_render(const sBatchMeshRenderer  *renderer,
                 const ovrTracking2   *tracking,
                 const unsigned int   eye_index) {
     ovrMatrix4f view_matrix = ovrMatrix4f_Transpose(&tracking->Eye[eye_index].ViewMatrix);
@@ -112,8 +112,8 @@ void BMR_render(sBatchFrameRenderer  *renderer,
             continue;
         }
 
-        sOGLMeshIndexes *mesh_intance = &renderer->mesh_references[renderer->mesh_instance_ids[i]];
-        sMaterial *material_instance = &renderer->material_references[renderer->material_instance_ids[i]];
+        const sOGLMeshIndexes *mesh_intance = &renderer->mesh_references[renderer->mesh_instance_ids[i]];
+        const sMaterial *material_instance = &renderer->material_references[renderer->material_instance_ids[i]];
 
         glBindVertexArray(mesh_intance->VAO);
 
@@ -134,7 +134,7 @@ void BMR_render(sBatchFrameRenderer  *renderer,
 }
 
 //// LIFECYCLE FUNCTIONS
-void BMR_destroy(sBatchFrameRenderer *renderer) {
+void BMR_destroy(sBatchMeshRenderer *renderer) {
     for(int i = 0; i < MAX_RESOURCE_SIZE; i++) {
         if (!renderer->enabled[i]) {
             continue;

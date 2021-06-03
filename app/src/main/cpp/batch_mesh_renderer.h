@@ -22,7 +22,7 @@ struct sOGLMeshIndexes {
     int             indices_count = 0;
 };
 
-struct sBatchFrameRenderer {
+struct sBatchMeshRenderer {
     bool            enabled                [MAX_INSTANCE_SIZE]    = {false};
     sMat44          models                 [MAX_INSTANCE_SIZE];
     unsigned int    mesh_instance_ids      [MAX_INSTANCE_SIZE]    = { 0 };
@@ -35,27 +35,27 @@ struct sBatchFrameRenderer {
 };
 
 ////  RESOURCE FUNCTIONS
-int BMR_add_mesh(sBatchFrameRenderer *renderer,
+int BMR_add_mesh(sBatchMeshRenderer *renderer,
                  const sMesh         *mesh,
                  const bool          is_static);
 
-int BMR_add_material(sBatchFrameRenderer *renderer,
+int BMR_add_material(sBatchMeshRenderer *renderer,
                      sTexture            *texture,
                      const char          *vertex_shader,
                      const char          *fragment_shader);
 
 
 //// INSTANCES FUNCTIONS
-int BMR_add_instance(sBatchFrameRenderer  *renderer,
+int BMR_add_instance(sBatchMeshRenderer  *renderer,
                      const int             mesh_id,
                      const int             material_id,
                      const sVector3        position);
 
-void BMR_render(sBatchFrameRenderer  *renderer,
+void BMR_render(const sBatchMeshRenderer  *renderer,
                 const ovrTracking2   *tracking,
                 const unsigned int   eye_index);
 
 //// LIFECYCLE FUNCTIONS
-void BMR_destroy(sBatchFrameRenderer *renderer);
+void BMR_destroy(sBatchMeshRenderer *renderer);
 
 #endif //QUEST_DEMO_BATCH_MESH_RENDERER_H

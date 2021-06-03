@@ -242,48 +242,51 @@ android_main(struct android_app* android_app)
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
 
-    // Load example mesh
-    sMesh player_mesh;
-    char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
-    load_mesh(&player_mesh, res_size);
-
-    sMesh cube_mesh;
-    char *cube_res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/cube.obj";
-    load_mesh(&cube_mesh, cube_res_size);
-
     sTexture cube_map_text;
 
     init_texture(&cube_map_text, true, false, "/data/data/app.upstairs.quest_sample_project/res/raw/skybox_");
 
     // Create renderer
-    sMeshRenderer mesh_renderer;
+    sBatchMeshRenderer mesh_renderer;
 
-    mesh_renderer.shader.load_shaders(basic_vertex_shader,
-                                      basic_frag_shader);
-    render_init(&mesh_renderer,
-                &player_mesh,
-                true);
+    // Add resources
+    sMesh player_mesh;
+    char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
+    load_mesh(&player_mesh, res_size);
 
-    sMeshRenderer cube_renderer;
-    mesh_renderer.shader.load_shaders(basic_vertex_shader,
-                                      basic_frag_shader);
-    render_init(&cube_renderer,
-                &cube_mesh,
-                true);
+    int player_mesh_id = BMR_add_mesh(&mesh_renderer, &player_mesh, true);
+
+    sMesh cube_mesh;
+    char *cube_res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/cube.obj";
+    load_mesh(&cube_mesh, cube_res_size);
+
+    int cube_mesh_id = BMR_add_mesh(&mesh_renderer, &cube_mesh, true);
+
+    // Mesh cleanup
+    mesh_destroy(&player_mesh);
+    mesh_destroy(&cube_mesh);
+
+    // ADD MATERIAL
 
     sSkyBoxRenderer skybox_rend;
 
     skybox_renderer_init(&skybox_rend, &cube_map_text);
 
-    info("Skobyxyy");
 
-    sMeshRenderer *render_list[2] = {&mesh_renderer, &cube_renderer};
+    int npc_id = BMR_add_instance(&mesh_renderer,
+                                  player_mesh_id,
+                                  0,
+                                  sVector3{0.f, 0.0f, -1.0f});
 
-    sMat44 model_mat, cube_model_mat;
-    model_mat.set_position(sVector3{0.f, 0.0f, -1.0f});
-    cube_model_mat.set_position(sVector3{0.0f, -1.0f, -1.0f});
+    int npc2_id = BMR_add_instance(&mesh_renderer,
+                                  player_mesh_id,
+                                  0,
+                                  sVector3{0.f, -1.0f, -1.5f});
 
-    sMat44 *models[2] = {&model_mat, &cube_model_mat};
+    int cube_id = BMR_add_instance(&mesh_renderer,
+                                   cube_mesh_id,
+                                   0,
+                                   sVector3{0.f, 1.0f, -1.0f});
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -341,18 +344,11 @@ android_main(struct android_app* android_app)
                 VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
         layer.HeadPose = tracking.HeadPose;
 
-
-        //layer = renderer_render_frame(&app.renderer, &tracking);
         render_frame(&frame_renderer,
-                     (const sMeshRenderer **)render_list,
-                     (const sMat44 **) models,
+                     &mesh_renderer,
                      &skybox_rend,
-                     1,
                      &tracking);
 
-
-
-        //const ovrLayerHeader2* layers[] = { &layer.Header };
         const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
 
         ovrSubmitFrameDescription2 frame;
@@ -366,11 +362,7 @@ android_main(struct android_app* android_app)
         vrapi_SubmitFrame2(app.ovr, &frame);
     }
 
-    render_destroy(&cube_renderer);
-    render_destroy(&mesh_renderer);
-
-    mesh_destroy(&player_mesh);
-    mesh_destroy(&cube_mesh);
+    BMR_destroy(&mesh_renderer);
 
     app_destroy(&app);
 

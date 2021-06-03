@@ -15,10 +15,8 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
 }
 
 void render_frame(sFrameRenderer *frame_render,
-                  const sMeshRenderer **renderers,
-                  const sMat44 **models,
+                  const sBatchMeshRenderer *renderer,
                   const sSkyBoxRenderer *skybox_renderer,
-                  const unsigned int mesh_count,
                   const ovrTracking2* tracking) {
     frame_render->frame_layer = vrapi_DefaultLayerProjection2();
     frame_render->frame_layer.Header.Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
@@ -45,18 +43,11 @@ void render_frame(sFrameRenderer *frame_render,
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (int j = 0; j < mesh_count; j++) {
-            render_mesh(framebuffer,
-                        renderers[j],
-                        models[j],
-                        tracking,
-                        i);
-        }
-        info("render skybox:");
+        info("Rendering Meshes");
+        BMR_render(renderer, tracking, i);
 
+        info("Rendering Skybox");
         skybox_render(skybox_renderer, tracking, i);
-
-        info("render skybox:");
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glScissor(0, 0, 1, framebuffer->height);
