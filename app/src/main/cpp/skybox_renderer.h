@@ -14,6 +14,7 @@
 #include "shader.h"
 #include "mesh.h"
 #include "math.h"
+#include "material.h"
 
 #include "raw_shaders.h"
 
@@ -23,6 +24,7 @@ struct sSkyBoxRenderer {
 
     sShader         shader;
     sTexture        *texture;
+    sMaterial       skybox_material;
 };
 
 void skybox_renderer_init(sSkyBoxRenderer  *renderer,

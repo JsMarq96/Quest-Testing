@@ -29,9 +29,6 @@ void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static);
 
-void render_init_cubemap(sMeshRenderer  *renderer,
-                         const bool     is_static);
-
 void render_mesh(framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
                  const sMat44        *model_mat,

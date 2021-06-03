@@ -76,7 +76,12 @@ void skybox_renderer_init(sSkyBoxRenderer  *renderer,
 
     renderer->texture = texture;
 
-    renderer->shader.load_shaders(skybox_vertex_shader, skybox_fragment_shader);
+    renderer->skybox_material.shader.load_shaders(skybox_vertex_shader,
+                                                  skybox_fragment_shader);
+
+    material_add_texture(&renderer->skybox_material,
+                         texture,
+                         COLOR_MAP);
 }
 
 void skybox_render(const sSkyBoxRenderer    *renderer,
@@ -90,16 +95,16 @@ void skybox_render(const sSkyBoxRenderer    *renderer,
 
     renderer->shader.enable();
 
-    renderer->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
-    renderer->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
-    renderer->shader.set_uniform("skybox", 0);
+    material_enable(&(renderer->skybox_material));
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, renderer->texture->texture_id);
+    // TODO: This part is kinda yuck yuck bro...
+    renderer->skybox_material.shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
+    renderer->skybox_material.shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
+    renderer->skybox_material.shader.set_uniform("skybox", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    renderer->shader.disable();
+    material_disable(&(renderer->skybox_material));
 
     glDepthFunc(GL_LESS);
 

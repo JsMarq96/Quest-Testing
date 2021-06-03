@@ -29,6 +29,8 @@
 #include "asset_extractor.h"
 #include "texture.h"
 #include "skybox_renderer.h"
+#include "material.h"
+#include "batch_mesh_renderer.h"
 
 #include "raw_shaders.h"
 
