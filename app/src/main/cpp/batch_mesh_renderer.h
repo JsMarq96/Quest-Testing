@@ -40,7 +40,7 @@ int BMR_add_mesh(sBatchMeshRenderer *renderer,
                  const bool          is_static);
 
 int BMR_add_material(sBatchMeshRenderer *renderer,
-                     sTexture            *texture,
+                     sTexture            *texture[3],
                      const char          *vertex_shader,
                      const char          *fragment_shader);
 

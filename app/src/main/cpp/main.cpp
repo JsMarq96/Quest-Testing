@@ -26,7 +26,7 @@
 #include "frame_renderer.h"
 #include "mesh.h"
 #include "mesh_renderer.h"
-#include "asset_extractor.h"
+#include "asset_manager.h"
 #include "texture.h"
 #include "skybox_renderer.h"
 #include "material.h"
@@ -186,46 +186,20 @@ android_main(struct android_app* android_app)
     ANativeActivity* activity = android_app->activity;
 
     sAssMan ass_man;
-    init_asset_manager(&ass_man, java.Env, activity);
-    info("Looked up root storage: %s", ass_man.root_dir);
+    AM_init(&ass_man, java.Env, activity);
+    info("Looked up root storage: %s", ass_man.root_asset_dir);
     info("Looked up apk path: %s", ass_man.apk_dir);
-    //ass_man.root_dir = "/data/data/app.upstairs.quest_sample_project/";
+    //ass_man.root_asset_dir = "/data/data/app.upstairs.quest_sample_project/";
 
-    if (!check_asset(&ass_man,"/res/raw/player_2.obj")) {
-        extract_asset(&ass_man,
-                      "res/raw/player_2.obj");
-        info("Asset extracted");
-    } else {
-        info("Asset is found");
-    }
+    char *npc_mesh_dir;
+    AM_fetch_asset(&ass_man, "res/raw/player_2.obj", &npc_mesh_dir);
+    char *cube_mesh_dir;
+    AM_fetch_asset(&ass_man, "res/raw/cube.obj", &cube_mesh_dir);
+    char *player_tex_dir;
+    AM_fetch_asset(&ass_man, "res/raw/player_text.png", &player_tex_dir);
 
-    if (!check_asset(&ass_man,"/res/raw/cube.obj")) {
-        extract_asset(&ass_man,
-                      "res/raw/cube.obj");
-        info("Asset cube extracted");
-    } else {
-        info("Asset cube is found");
-    }
-
-    // TODO: Extract cubemap functions
-    if (!check_asset(&ass_man,"/res/raw/skybox_right.jpg")) {
-        extract_asset(&ass_man,
-                      "res/raw/skybox_right.jpg");
-        extract_asset(&ass_man,
-                      "res/raw/skybox_left.jpg");
-        extract_asset(&ass_man,
-                      "res/raw/skybox_top.jpg");
-        extract_asset(&ass_man,
-                      "res/raw/skybox_bottom.jpg");
-        extract_asset(&ass_man,
-                      "res/raw/skybox_back.jpg");
-        extract_asset(&ass_man,
-                      "res/raw/skybox_front.jpg");
-
-        info("Asset cube map extracted");
-    } else {
-        info("Asset cube map is found");
-    }
+    char *skybox_tex_dir;
+    AM_fetch_cubemap_textures(&ass_man, "res/raw/skybox_", &skybox_tex_dir);
 
 
     info("initialize vr api");
@@ -242,31 +216,44 @@ android_main(struct android_app* android_app)
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
 
-    sTexture cube_map_text;
+    // Load resources
 
-    init_texture(&cube_map_text, true, false, "/data/data/app.upstairs.quest_sample_project/res/raw/skybox_");
+    sTexture cube_map_text;
+    init_texture(&cube_map_text,
+                 true,
+                 false,
+                 skybox_tex_dir);
+
+    sTexture player_texture;
+    init_texture(&player_texture,
+                 false,
+                 false,
+                 player_tex_dir);
+
+
+    sMesh player_mesh;
+    load_mesh(&player_mesh, npc_mesh_dir);
+
+    sMesh cube_mesh;
+    load_mesh(&cube_mesh, cube_mesh_dir);
 
     // Create renderer
     sBatchMeshRenderer mesh_renderer;
 
-    // Add resources
-    sMesh player_mesh;
-    char *res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/player_2.obj";
-    load_mesh(&player_mesh, res_size);
-
     int player_mesh_id = BMR_add_mesh(&mesh_renderer, &player_mesh, true);
-
-    sMesh cube_mesh;
-    char *cube_res_size = "/data/data/app.upstairs.quest_sample_project/res/raw/cube.obj";
-    load_mesh(&cube_mesh, cube_res_size);
-
     int cube_mesh_id = BMR_add_mesh(&mesh_renderer, &cube_mesh, true);
 
     // Mesh cleanup
     mesh_destroy(&player_mesh);
     mesh_destroy(&cube_mesh);
 
+    sTexture *text_arr[3] = {&player_texture,NULL, NULL};
+
     // ADD MATERIAL
+    int player_tex_id = BMR_add_material(&mesh_renderer,
+                                         text_arr,
+                                         basic_vertex_shader,
+                                         basic_frag_shader);
 
     sSkyBoxRenderer skybox_rend;
 
@@ -275,18 +262,18 @@ android_main(struct android_app* android_app)
 
     int npc_id = BMR_add_instance(&mesh_renderer,
                                   player_mesh_id,
-                                  0,
-                                  sVector3{0.f, 0.0f, -1.0f});
+                                  player_tex_id,
+                                  sVector3{-2.f, 0.0f, -1.5f});
 
     int npc2_id = BMR_add_instance(&mesh_renderer,
                                   player_mesh_id,
-                                  0,
-                                  sVector3{0.f, -1.0f, -1.5f});
+                                   player_tex_id,
+                                  sVector3{2.f, .0f, -1.5f});
 
     int cube_id = BMR_add_instance(&mesh_renderer,
                                    cube_mesh_id,
-                                   0,
-                                   sVector3{0.f, 1.0f, -1.0f});
+                                   player_tex_id,
+                                   sVector3{0.f, -2.5f, .0f});
 
     // Create frame renderer
     sFrameRenderer frame_renderer;

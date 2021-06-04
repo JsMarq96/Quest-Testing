@@ -54,6 +54,7 @@ int BMR_add_mesh(sBatchMeshRenderer *renderer,
     renderer->mesh_references[renderer->last_inserted_mesh].VAO = VAO;
     renderer->mesh_references[renderer->last_inserted_mesh].VBO = VBO;
     renderer->mesh_references[renderer->last_inserted_mesh].EBO = EBO;
+    renderer->mesh_references[renderer->last_inserted_mesh].indices_count = mesh->indices_cout;
 
     return renderer->last_inserted_mesh++;
 }
@@ -80,6 +81,7 @@ int BMR_add_material(sBatchMeshRenderer *renderer,
 
 
 //// INSTANCES FUNCTIONS
+
 int BMR_add_instance(sBatchMeshRenderer  *renderer,
                      const int             mesh_id,
                      const int             material_id,
@@ -119,9 +121,11 @@ void BMR_render(const sBatchMeshRenderer  *renderer,
 
         material_enable(material_instance);
 
+        // TODO: This is kinda yuck yuck bro
         material_instance->shader.set_uniform_matrix4("u_model_mat", &renderer->models[i]);
         material_instance->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
         material_instance->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
+        material_instance->shader.set_uniform("u_colormap", 0);
 
         glDrawElements(GL_TRIANGLES, mesh_intance->indices_count, GL_UNSIGNED_INT, NULL);
 
@@ -134,6 +138,7 @@ void BMR_render(const sBatchMeshRenderer  *renderer,
 }
 
 //// LIFECYCLE FUNCTIONS
+
 void BMR_destroy(sBatchMeshRenderer *renderer) {
     for(int i = 0; i < MAX_RESOURCE_SIZE; i++) {
         if (!renderer->enabled[i]) {

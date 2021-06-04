@@ -43,11 +43,15 @@ void render_frame(sFrameRenderer *frame_render,
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        info("Rendering Meshes");
-        BMR_render(renderer, tracking, i);
+        // Setup the framebuffers
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
+                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
 
         info("Rendering Skybox");
         skybox_render(skybox_renderer, tracking, i);
+
+        info("Rendering Meshes");
+        BMR_render(renderer, tracking, i);
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glScissor(0, 0, 1, framebuffer->height);

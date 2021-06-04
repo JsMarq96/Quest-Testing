@@ -65,7 +65,11 @@ void init_texture(sTexture  *text,
         return;
     }
 
-    text->raw_data = stbi_load(texture_name, &text->width, &text->height, &text->layers, 0);
+    int w, h, l;
+    text->raw_data = stbi_load(texture_name, &w, &h, &l, 0);
+
+    text->width = w;
+    text->height = h;
 
     if (!store_on_RAM) {
         upload_simple_texture_to_GPU(text);
@@ -76,10 +80,8 @@ void init_texture(sTexture  *text,
 
 void upload_simple_texture_to_GPU(sTexture *text) {
 
+    int i;
     assert(text->raw_data != NULL && "Uploading empty texture to GPU");
-    assert(text->width =! 0 && "Uploading empty texture to GPU");
-    assert(text->height =! 0 && "Uploading empty texture to GPU");
-    assert(text->layers =! 0 && "Uploading empty texture to GPU");
 
     glGenTextures(1, &text->texture_id);
 
