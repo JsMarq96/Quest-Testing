@@ -202,6 +202,8 @@ android_main(struct android_app* android_app)
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
 
+    vrapi_SetDisplayRefreshRate( app.ovr, 90.0f );
+
     AM_init(&ass_man_instance, java.Env, activity);
     info("Looked up root storage: %s", ass_man_instance.root_asset_dir);
     info("Looked up apk path: %s", ass_man_instance.apk_dir);
@@ -225,12 +227,12 @@ android_main(struct android_app* android_app)
     int ship_1 = scene_add_object(&default_scene,
                                   ship_mesh_id,
                                   ship_material_id,
-                                  sVector3{5.0f, 0.0f, 0.0f});
+                                  sVector3{5.0f, -2.50f, 0.0f});
 
     int ship_2 = scene_add_object(&default_scene,
                                   ship_mesh_id,
                                   ship_material_id,
-                                  sVector3{-5.0f, 0.0f, 0.0f});
+                                  sVector3{-5.0f, -1.5f, 0.0f});
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
