@@ -169,6 +169,9 @@ app_destroy(struct app* app)
     renderer_destroy(&app->renderer);
 }
 
+
+sAssMan ass_man_instance;
+
 void
 android_main(struct android_app* android_app)
 {
@@ -185,23 +188,6 @@ android_main(struct android_app* android_app)
 
     ANativeActivity* activity = android_app->activity;
 
-    sAssMan ass_man;
-    AM_init(&ass_man, java.Env, activity);
-    info("Looked up root storage: %s", ass_man.root_asset_dir);
-    info("Looked up apk path: %s", ass_man.apk_dir);
-    //ass_man.root_asset_dir = "/data/data/app.upstairs.quest_sample_project/";
-
-    char *npc_mesh_dir;
-    AM_fetch_asset(&ass_man, "res/raw/player_2.obj", &npc_mesh_dir);
-    char *cube_mesh_dir;
-    AM_fetch_asset(&ass_man, "res/raw/cube.obj", &cube_mesh_dir);
-    char *player_tex_dir;
-    AM_fetch_asset(&ass_man, "res/raw/player_text.png", &player_tex_dir);
-
-    char *skybox_tex_dir;
-    AM_fetch_cubemap_textures(&ass_man, "res/raw/skybox_", &skybox_tex_dir);
-
-
     info("initialize vr api");
     const ovrInitParms init_parms = vrapi_DefaultInitParms(&java);
     if (vrapi_Initialize(&init_parms) != VRAPI_INITIALIZE_SUCCESS) {
@@ -216,64 +202,35 @@ android_main(struct android_app* android_app)
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
 
-    // Load resources
+    AM_init(&ass_man_instance, java.Env, activity);
+    info("Looked up root storage: %s", ass_man_instance.root_asset_dir);
+    info("Looked up apk path: %s", ass_man_instance.apk_dir);
+    //ass_man.root_asset_dir = "/data/data/app.upstairs.quest_sample_project/";
 
-    sTexture cube_map_text;
-    init_texture(&cube_map_text,
-                 true,
-                 false,
-                 skybox_tex_dir);
+    sScene default_scene;
 
-    sTexture player_texture;
-    init_texture(&player_texture,
-                 false,
-                 false,
-                 player_tex_dir);
+    int ship_mesh_id = scene_resource_add_mesh(&default_scene,
+                                               "res/raw/n_ship.obj",
+                                               true);
+    int ship_material_id = scene_resource_add_material(&default_scene,
+                                                       "res/raw/ship_tex.jpg",
+                                                       NULL,
+                                                       NULL,
+                                                       basic_vertex_shader,
+                                                       basic_frag_shader);
 
-
-    sMesh player_mesh;
-    load_mesh(&player_mesh, npc_mesh_dir);
-
-    sMesh cube_mesh;
-    load_mesh(&cube_mesh, cube_mesh_dir);
-
-    // Create renderer
-    sBatchMeshRenderer mesh_renderer;
-
-    int player_mesh_id = BMR_add_mesh(&mesh_renderer, &player_mesh, true);
-    int cube_mesh_id = BMR_add_mesh(&mesh_renderer, &cube_mesh, true);
-
-    // Mesh cleanup
-    mesh_destroy(&player_mesh);
-    mesh_destroy(&cube_mesh);
-
-    sTexture *text_arr[3] = {&player_texture,NULL, NULL};
-
-    // ADD MATERIAL
-    int player_tex_id = BMR_add_material(&mesh_renderer,
-                                         text_arr,
-                                         basic_vertex_shader,
-                                         basic_frag_shader);
-
-    sSkyBoxRenderer skybox_rend;
-
-    skybox_renderer_init(&skybox_rend, &cube_map_text);
+    scene_set_skybox(&default_scene, "res/raw/skybox_");
 
 
-    int npc_id = BMR_add_instance(&mesh_renderer,
-                                  player_mesh_id,
-                                  player_tex_id,
-                                  sVector3{-2.f, 0.0f, -1.5f});
+    int ship_1 = scene_add_object(&default_scene,
+                                  ship_mesh_id,
+                                  ship_material_id,
+                                  sVector3{5.0f, 0.0f, 0.0f});
 
-    int npc2_id = BMR_add_instance(&mesh_renderer,
-                                  player_mesh_id,
-                                   player_tex_id,
-                                  sVector3{2.f, .0f, -1.5f});
-
-    int cube_id = BMR_add_instance(&mesh_renderer,
-                                   cube_mesh_id,
-                                   player_tex_id,
-                                   sVector3{0.f, -2.5f, .0f});
+    int ship_2 = scene_add_object(&default_scene,
+                                  ship_mesh_id,
+                                  ship_material_id,
+                                  sVector3{-5.0f, 0.0f, 0.0f});
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -331,9 +288,9 @@ android_main(struct android_app* android_app)
                 VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
         layer.HeadPose = tracking.HeadPose;
 
+        /// FRAME RENDERER
         render_frame(&frame_renderer,
-                     &mesh_renderer,
-                     &skybox_rend,
+                     &default_scene,
                      &tracking);
 
         const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
@@ -348,8 +305,6 @@ android_main(struct android_app* android_app)
 
         vrapi_SubmitFrame2(app.ovr, &frame);
     }
-
-    BMR_destroy(&mesh_renderer);
 
     app_destroy(&app);
 

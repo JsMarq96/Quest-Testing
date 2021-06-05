@@ -22,7 +22,7 @@ enum eTextureType : int {
 };
 
 struct sMaterial {
-    sTexture        *textures[TEXTURE_TYPE_COUNT];
+    sTexture        textures[TEXTURE_TYPE_COUNT];
     bool            enabled_textures[TEXTURE_TYPE_COUNT] = {false};
 
     sShader         shader;
@@ -33,8 +33,11 @@ void material_add_shader(sMaterial      *mat,
                          const char     *fragment_shader);
 
 void material_add_texture(sMaterial            *mat,
-                          sTexture             *texture,
+                          const char*          text_dir,
                           const eTextureType   text_type);
+
+void material_add_cubemap_texture(sMaterial   *mat,
+                                  const char  *text_dir);
 
 /**
  * Binds the textures on Opengl

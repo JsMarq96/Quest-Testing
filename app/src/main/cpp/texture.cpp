@@ -10,7 +10,7 @@
 
 void upload_simple_texture_to_GPU(sTexture *text);
 
-void init_texture(sTexture  *text,
+void load_texture(sTexture  *text,
                   const bool is_cube_map,
                   const bool store_on_RAM,
                   const char *texture_name) {

@@ -21,6 +21,8 @@ struct sAssMan {
     const char* root_asset_dir;
 };
 
+extern sAssMan ass_man_instance;
+
 void AM_init(sAssMan *ass_manager,
              JNIEnv *env,
              ANativeActivity *activity);

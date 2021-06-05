@@ -12,10 +12,22 @@ void material_add_shader(sMaterial      *mat,
 }
 
 void material_add_texture(sMaterial            *mat,
-                          sTexture             *texture,
+                          const char*           text_dir,
                           const eTextureType   text_type) {
     mat->enabled_textures[text_type] = true;
-    mat->textures[text_type] = texture;
+    load_texture(&mat->textures[text_type],
+                 false,
+                 false,
+                 text_dir);
+}
+
+void material_add_cubemap_texture(sMaterial   *mat,
+                                  const char   *text_dir) {
+    mat->enabled_textures[COLOR_MAP] = true;
+    load_texture(&mat->textures[COLOR_MAP],
+                 true,
+                 false,
+                 text_dir);
 }
 
 /**
@@ -30,7 +42,7 @@ void material_enable(const sMaterial   *mat) {
             continue;
         }
         glActiveTexture(GL_TEXTURE0 + texture);
-        glBindTexture(GL_TEXTURE_2D, mat->textures[texture]->texture_id);
+        glBindTexture(GL_TEXTURE_2D, mat->textures[texture].texture_id);
     }
 
     mat->shader.enable();

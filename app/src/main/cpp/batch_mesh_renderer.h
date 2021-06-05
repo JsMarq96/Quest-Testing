@@ -11,8 +11,7 @@
 #include "material.h"
 #include "mesh.h"
 
-#define MAX_INSTANCE_SIZE 100
-#define MAX_RESOURCE_SIZE 50
+#define MAX_RESOURCE_SIZE 100
 
 struct sOGLMeshIndexes {
     unsigned int    VAO           = 0;
@@ -22,14 +21,15 @@ struct sOGLMeshIndexes {
     int             indices_count = 0;
 };
 
-struct sBatchMeshRenderer {
-    bool            enabled                [MAX_INSTANCE_SIZE]    = {false};
-    sMat44          models                 [MAX_INSTANCE_SIZE];
-    unsigned int    mesh_instance_ids      [MAX_INSTANCE_SIZE]    = { 0 };
-    unsigned int    material_instance_ids  [MAX_INSTANCE_SIZE]    = { 0 };
+struct sRenderInstance {
+    int  material_index  = 0;
+    int  mesh_index      = 0;
+};
 
+struct sBatchMeshRenderer {
     sMaterial       material_references     [MAX_RESOURCE_SIZE];
     sOGLMeshIndexes mesh_references         [MAX_RESOURCE_SIZE];
+
     int             last_inserted_material                        = 0;
     int             last_inserted_mesh                            = 0;
 };
@@ -39,21 +39,25 @@ int BMR_add_mesh(sBatchMeshRenderer *renderer,
                  const sMesh         *mesh,
                  const bool          is_static);
 
+int BMR_add_mesh(sBatchMeshRenderer *renderer,
+                 const char*         mesh_dir,
+                 const bool          is_static);
+
 int BMR_add_material(sBatchMeshRenderer *renderer,
-                     sTexture            *texture[3],
+                     const char*         color_texture,
+                     const char*         normal_texture,
+                     const char*         specular_texture,
                      const char          *vertex_shader,
                      const char          *fragment_shader);
 
 
 //// INSTANCES FUNCTIONS
-int BMR_add_instance(sBatchMeshRenderer  *renderer,
-                     const int             mesh_id,
-                     const int             material_id,
-                     const sVector3        position);
-
-void BMR_render(const sBatchMeshRenderer  *renderer,
-                const ovrTracking2   *tracking,
-                const unsigned int   eye_index);
+void BMR_render(const sBatchMeshRenderer   *renderer,
+                const sMat44               *models,
+                const sRenderInstance      *render_instances,
+                const int                  obj_count,
+                const ovrTracking2         *tracking,
+                const unsigned int         eye_index);
 
 //// LIFECYCLE FUNCTIONS
 void BMR_destroy(sBatchMeshRenderer *renderer);

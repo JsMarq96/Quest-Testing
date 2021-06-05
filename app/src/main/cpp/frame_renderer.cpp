@@ -14,10 +14,9 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
     }
 }
 
-void render_frame(sFrameRenderer *frame_render,
-                  const sBatchMeshRenderer *renderer,
-                  const sSkyBoxRenderer *skybox_renderer,
-                  const ovrTracking2* tracking) {
+void render_frame(sFrameRenderer      *frame_render,
+                  const sScene        *scene,
+                  const ovrTracking2  *tracking) {
     frame_render->frame_layer = vrapi_DefaultLayerProjection2();
     frame_render->frame_layer.Header.Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
     frame_render->frame_layer.HeadPose = tracking->HeadPose;
@@ -47,11 +46,8 @@ void render_frame(sFrameRenderer *frame_render,
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
                           framebuffer->framebuffers[framebuffer->swap_chain_index]);
 
-        info("Rendering Skybox");
-        skybox_render(skybox_renderer, tracking, i);
-
-        info("Rendering Meshes");
-        BMR_render(renderer, tracking, i);
+        //info("Render Scene: %s", scene->name);
+        scene_render(scene, tracking, i);
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glScissor(0, 0, 1, framebuffer->height);

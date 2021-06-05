@@ -23,12 +23,12 @@ struct sSkyBoxRenderer {
     unsigned int    VBO;
 
     sShader         shader;
-    sTexture        *texture;
+    sTexture        texture;
     sMaterial       skybox_material;
 };
 
 void skybox_renderer_init(sSkyBoxRenderer  *renderer,
-                          sTexture         *texture);
+                          const char       *texture_dir);
 
 void skybox_render(const sSkyBoxRenderer    *renderer,
                    const ovrTracking2       *tracking,

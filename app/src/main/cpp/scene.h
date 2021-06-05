@@ -8,34 +8,53 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
+#include "asset_manager.h"
 #include "mesh.h"
-#include "mesh_renderer.h"
+#include "batch_mesh_renderer.h"
+#include "skybox_renderer.h"
 #include "math.h"
 
 #define SCENE_OBJ_MAX 120
+#define MAX_INSTANCE_SIZE 100
 
 struct sScene {
-    bool            enabled     [SCENE_OBJ_MAX] = {false};
-    sMeshRenderer   renderers   [SCENE_OBJ_MAX];
-    sMat44          models      [SCENE_OBJ_MAX];
+    const char*     name;
+
+    bool            initialized            [MAX_INSTANCE_SIZE]    = {false};
+    bool            enabled                [MAX_INSTANCE_SIZE]    = {false};
+    sVector3        position               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
+    sVector3        rotation               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
+    sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
+
+    sBatchMeshRenderer  mesh_renderer;
+    sSkyBoxRenderer     skybox_renderer;
 };
 
-/// Scene Live Cicle
+/// SCENE LIVECYCLE
 void create_scene(sScene *new_scene);
 void destroy_scene(sScene  *to_destroy);
 
+int scene_resource_add_mesh(sScene       *scene,
+                            const char*  texture,
+                            const bool   is_static);
 
-int add_object_to_scene(sScene  *scene,
-                        const sMesh *mesh,
-                        const sMat44  *model);
+int scene_resource_add_material(sScene         *scene,
+                                const char*    color_texture,
+                                const char*    normal_texture,
+                                const char*    specular_texture,
+                                const char     *vertex_shader,
+                                const char     *fragment_shader);
 
-void delete_object_from_scene(sScene *scene,
-                              const int object_index);
+void scene_set_skybox(sScene      *scene,
+                      const char  *skyboy_dir);
 
-inline void move_object_in_scene(sScene          *scene,
-                                 const int       object_index,
-                                 const sVector3  position) {
-    scene->models[object_index].set_position(position);
-}
+int scene_add_object(sScene          *scene,
+                     const int       mesh_id,
+                     const int       material_id,
+                     const sVector3  position);
+
+void scene_render(const sScene           *scene,
+                  const ovrTracking2     *tracking,
+                  const unsigned int     eye_index);
 
 #endif //QUEST_DEMO_SCENE_H

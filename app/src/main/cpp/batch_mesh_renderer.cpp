@@ -6,6 +6,18 @@
 #include "common.h"
 
 ////  RESOURCE FUNCTIONS
+int BMR_add_mesh(sBatchMeshRenderer *renderer,
+                 const char*         mesh_dir,
+                 const bool          is_static) {
+    sMesh mesh;
+    load_mesh(&mesh, mesh_dir);
+
+    int mesh_index =  BMR_add_mesh(renderer, &mesh, is_static);
+
+    mesh_destroy(&mesh);
+
+    return mesh_index;
+};
 
 // TODO: add the surface normals
 int BMR_add_mesh(sBatchMeshRenderer *renderer,
@@ -60,72 +72,62 @@ int BMR_add_mesh(sBatchMeshRenderer *renderer,
 }
 
 int BMR_add_material(sBatchMeshRenderer *renderer,
-                     sTexture            *texture[3],
+                     const char*         color_texture,
+                     const char*         normal_texture,
+                     const char*         specular_texture,
                      const char          *vertex_shader,
                      const char          *fragment_shader) {
+
     sMaterial *material = &renderer->material_references[renderer->last_inserted_material];
     material_add_shader(material,
                         vertex_shader,
                         fragment_shader);
 
-    for (int i = 0; i < 3; i++) {
-        if (texture[i] == NULL) {
-            continue;
-        }
+    if (color_texture != NULL) {
+        material_add_texture(material, color_texture, (eTextureType) 0);
+    }
 
-        material_add_texture(material, texture[i], (eTextureType) i);
+    if (normal_texture != NULL) {
+        material_add_texture(material, normal_texture, (eTextureType) 1);
+    }
+
+    if (specular_texture != NULL) {
+        material_add_texture(material, specular_texture, (eTextureType) 2);
     }
 
     return renderer->last_inserted_material++;
-}
+};
 
 
 //// INSTANCES FUNCTIONS
 
-int BMR_add_instance(sBatchMeshRenderer  *renderer,
-                     const int             mesh_id,
-                     const int             material_id,
-                     const sVector3        position) {
-    int index;
-    for (index = 0; index < MAX_INSTANCE_SIZE; index++) {
-        if (!renderer->enabled[index]) {
-            break;
-        }
-    }
-
-    renderer->enabled[index] = true;
-    renderer->models[index].set_position(position);
-    renderer->mesh_instance_ids[index] = mesh_id;
-    renderer->material_instance_ids[index] = material_id;
-
-    return index;
-}
-
 // TODO: batch togeter the rendering via instancing the same meshes
 // TODO: Frustrum culling
-void BMR_render(const sBatchMeshRenderer  *renderer,
-                const ovrTracking2   *tracking,
-                const unsigned int   eye_index) {
+void BMR_render(const sBatchMeshRenderer   *renderer,
+                const sMat44               *models,
+                const sRenderInstance      *render_instances,
+                const int                  obj_count,
+                const ovrTracking2         *tracking,
+                const unsigned int         eye_index) {
     ovrMatrix4f view_matrix = ovrMatrix4f_Transpose(&tracking->Eye[eye_index].ViewMatrix);
     ovrMatrix4f projection_matrix = ovrMatrix4f_Transpose(&tracking->Eye[eye_index].ProjectionMatrix);
 
-    for(int i = 0; i < MAX_INSTANCE_SIZE; i++) {
-        if (!renderer->enabled[i]) {
-            continue;
-        }
-
-        const sOGLMeshIndexes *mesh_intance = &renderer->mesh_references[renderer->mesh_instance_ids[i]];
-        const sMaterial *material_instance = &renderer->material_references[renderer->material_instance_ids[i]];
+    for(int i = 0; i < obj_count; i++) {
+        const sRenderInstance *rend_instance = &render_instances[i];
+        const sOGLMeshIndexes *mesh_intance = &renderer->mesh_references[rend_instance->mesh_index];
+        const sMaterial *material_instance = &renderer->material_references[rend_instance->material_index];
 
         glBindVertexArray(mesh_intance->VAO);
 
         material_enable(material_instance);
 
         // TODO: This is kinda yuck yuck bro
-        material_instance->shader.set_uniform_matrix4("u_model_mat", &renderer->models[i]);
+        material_instance->shader.set_uniform_matrix4("u_model_mat", &models[i]);
         material_instance->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
         material_instance->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
         material_instance->shader.set_uniform("u_colormap", 0);
+        //material_instance->shader.set_uniform("u_normalmap", 1);
+        //material_instance->shader.set_uniform("u_specularmap", 2);
 
         glDrawElements(GL_TRIANGLES, mesh_intance->indices_count, GL_UNSIGNED_INT, NULL);
 
@@ -141,9 +143,6 @@ void BMR_render(const sBatchMeshRenderer  *renderer,
 
 void BMR_destroy(sBatchMeshRenderer *renderer) {
     for(int i = 0; i < MAX_RESOURCE_SIZE; i++) {
-        if (!renderer->enabled[i]) {
-            continue;
-        }
         glDeleteVertexArrays(1, &renderer->mesh_references[i].VAO);
         glDeleteBuffers(1, &renderer->mesh_references[i].VBO);
         glDeleteBuffers(1, &renderer->mesh_references[i].EBO);

@@ -6,7 +6,7 @@
 
 
 void skybox_renderer_init(sSkyBoxRenderer  *renderer,
-                          sTexture         *texture) {
+                          const char       *texture_dir) {
     float raw_skybox_vertex[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -74,14 +74,11 @@ void skybox_renderer_init(sSkyBoxRenderer  *renderer,
 
     glBindVertexArray(0);
 
-    renderer->texture = texture;
-
     renderer->skybox_material.shader.load_shaders(skybox_vertex_shader,
                                                   skybox_fragment_shader);
 
-    material_add_texture(&renderer->skybox_material,
-                         texture,
-                         COLOR_MAP);
+    material_add_cubemap_texture(&renderer->skybox_material,
+                                 texture_dir);
 }
 
 void skybox_render(const sSkyBoxRenderer    *renderer,
