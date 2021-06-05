@@ -72,7 +72,27 @@ void init_texture(sTexture  *text,
     text->height = h;
 
     if (!store_on_RAM) {
-        upload_simple_texture_to_GPU(text);
+        assert(text->raw_data != NULL && "Uploading empty texture to GPU");
+
+        glGenTextures(1, &text->texture_id);
+
+        glBindTexture(GL_TEXTURE_2D, text->texture_id);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     GL_RGB,
+                     w,
+                     h,
+                     0,
+                     GL_RGB,
+                     GL_UNSIGNED_BYTE,
+                     text->raw_data);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(text->raw_data);
     }
@@ -81,30 +101,7 @@ void init_texture(sTexture  *text,
 void upload_simple_texture_to_GPU(sTexture *text) {
 
     int i;
-    assert(text->raw_data != NULL && "Uploading empty texture to GPU");
 
-    glGenTextures(1, &text->texture_id);
-
-    glBindTexture(GL_TEXTURE_2D, text->texture_id);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 DEFAULT_TEXT_FIDELITY,
-                 GL_RGB,
-                 text->width,
-                 text->height,
-                 0,
-                 GL_RGB,
-                 GL_UNSIGNED_BYTE,
-                 text->raw_data);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 

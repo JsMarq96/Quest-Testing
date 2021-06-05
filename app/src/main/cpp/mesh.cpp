@@ -44,10 +44,15 @@ load_mesh(sMesh        *result,
     // Rewind and then load the data
     rewind(mesh_file);
 
+    struct sUV_Wrapper {
+        float u;
+        float v;
+    };
+
     int vertex_index = 0;
-    int uv_index = 0;
+    int uv_count = 0;
     int faces_index = 0;
-    float *tmp_uvs = NULL;
+    sUV_Wrapper *tmp_uvs = NULL;
 
     // Since the OBJs are stored in a sequential fashin, we can just get the
     // number of indexes, and allocate stuff for the UVs, temporally store the UVs
@@ -61,45 +66,57 @@ load_mesh(sMesh        *result,
             result->vertex_list[vertex_index].z = z;
             vertex_index++;
         } else if (line_buffer[0] == 'v' && line_buffer[1] == 't') {
-            if (uv_index == 0) {
-                tmp_uvs = (float*) malloc(sizeof(float) * (v_count * 2));
+            if (uv_count == 0) {
+                tmp_uvs = (sUV_Wrapper*) malloc(sizeof(sUV_Wrapper) * (v_count));
             }
             float u,v;
             sscanf(line_buffer, "vt %f %f\n", &u, &v);
 
             // Store the UVs by tuples
-            tmp_uvs[uv_index++] = u;
-            tmp_uvs[uv_index++] = v;
+            tmp_uvs[uv_count].u = u;
+            tmp_uvs[uv_count].v = v;
+            uv_count++;
         } else if (line_buffer[0] == 'f') {
             int index1, index2, index3, normal1, normal2, normal3, uv1, uv2, uv3;
             sscanf(line_buffer,
                    "f %i/%i/%i %i/%i/%i %i/%i/%i\n",
                    &index1,
-                   &normal1,
                    &uv1,
+                   &normal1,
                    &index2,
-                   &normal2,
                    &uv2,
+                   &normal2,
                    &index3,
-                   &normal3,
-                   &uv3);
+                   &uv3,
+                   &normal3);
 
             index1 -= 1;
             index2 -= 1;
             index3 -= 1;
+            uv1    -= 1;
+            uv2    -= 1;
+            uv3    -= 1;
+
+            if (index2 == 0) {
+                int p = 0;
+            }
 
             result->faces_index[faces_index++] = index1;
             result->faces_index[faces_index++] = index2;
             result->faces_index[faces_index++] = index3;
 
-            result->vertex_list[index1].u = tmp_uvs[uv1];
-            result->vertex_list[index1].v = tmp_uvs[uv1 + 1];
+            result->vertex_list[index1].u = tmp_uvs[uv1].u;
+            result->vertex_list[index1].v = tmp_uvs[uv1].v;
 
-            result->vertex_list[index2].u = tmp_uvs[uv2];
-            result->vertex_list[index2].v = tmp_uvs[uv2 + 1];
+            result->vertex_list[index2].u = tmp_uvs[uv2].u;
+            result->vertex_list[index2].v = tmp_uvs[uv2].v;
 
-            result->vertex_list[index3].u = tmp_uvs[uv3];
-            result->vertex_list[index3].v = tmp_uvs[uv3 + 1];
+            result->vertex_list[index3].u = tmp_uvs[uv3].u;
+            result->vertex_list[index3].v = tmp_uvs[uv3].v;
+
+            if (index2 == 0) {
+                int p = 0;
+            }
         }
     }
 
@@ -108,7 +125,7 @@ load_mesh(sMesh        *result,
     fclose(mesh_file);
     result->vertex_count = vertex_index;
     result->raw_vertex_size = vertex_index * 5;
-    result->uv_count = uv_index;
+    result->uv_count = uv_count;
 };
 
 
