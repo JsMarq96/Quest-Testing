@@ -74,7 +74,7 @@ load_mesh(sMesh        *result,
 
             // Store the UVs by tuples
             tmp_uvs[uv_count].u = u;
-            tmp_uvs[uv_count].v = v;
+            tmp_uvs[uv_count].v =  1.f - v;
             uv_count++;
         } else if (line_buffer[0] == 'f') {
             int index1, index2, index3, normal1, normal2, normal3, uv1, uv2, uv3;
