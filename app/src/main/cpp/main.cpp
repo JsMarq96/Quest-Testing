@@ -20,7 +20,7 @@
 #include "display_layer.h"
 #include "basic_renderer.h"
 #include "basic_geometry.h"
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 #include "shader_program.h"
 #include "common.h"
 #include "frame_renderer.h"
@@ -31,6 +31,7 @@
 #include "skybox_renderer.h"
 #include "material.h"
 #include "batch_mesh_renderer.h"
+#include "input.h"
 
 #include "raw_shaders.h"
 
@@ -135,6 +136,7 @@ app_handle_input(struct app* app)
                 back_button_down_current_frame |=
                         input_state.Buttons & ovrButton_Y;
             }
+
         }
         ++i;
     }
@@ -151,10 +153,6 @@ app_create(struct app* app, ovrJava* java)
 {
     app->java = java;
     egl_create(&app->egl);
-    renderer_create(&app->renderer,
-                    vrapi_GetSystemPropertyInt( java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
-                    vrapi_GetSystemPropertyInt(
-                            java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_HEIGHT));
     app->resumed = false;
     app->window = NULL;
     app->ovr = NULL;
@@ -171,6 +169,10 @@ app_destroy(struct app* app)
 
 
 sAssMan ass_man_instance;
+
+#define LEFT_CONTROLLER_ID 0
+#define RIGHT_CONTROLLER_ID 1
+
 
 void
 android_main(struct android_app* android_app)
@@ -211,6 +213,7 @@ android_main(struct android_app* android_app)
 
     sScene default_scene;
 
+    // Load example ship
     int ship_mesh_id = scene_resource_add_mesh(&default_scene,
                                                "res/raw/n_ship.obj",
                                                true);
@@ -220,6 +223,28 @@ android_main(struct android_app* android_app)
                                                        NULL,
                                                        basic_vertex_shader,
                                                        basic_frag_shader);
+
+    // Loand mesh and texture of hands
+    int left_hand_mesh_id = scene_resource_add_mesh(&default_scene,
+                                               "res/raw/left_hand.obj",
+                                               true);
+    int right_hand_mesh_id = scene_resource_add_mesh(&default_scene,
+                                                    "res/raw/right_hand.obj",
+                                                    true);
+
+    int right_hand_material_id = scene_resource_add_material(&default_scene,
+                                                       "res/raw/right_hand_tex.jpg",
+                                                       NULL,
+                                                       NULL,
+                                                       basic_vertex_shader,
+                                                       basic_frag_shader);
+    int left_hand_material_id = scene_resource_add_material(&default_scene,
+                                                             "res/raw/left_hand_tex.jpg",
+                                                             NULL,
+                                                             NULL,
+                                                             basic_vertex_shader,
+                                                             basic_frag_shader);
+
 
     scene_set_skybox(&default_scene, "res/raw/skybox_");
 
@@ -233,6 +258,16 @@ android_main(struct android_app* android_app)
                                   ship_mesh_id,
                                   ship_material_id,
                                   sVector3{-5.0f, -1.5f, 0.0f});
+
+    int right_hand_id = scene_add_object(&default_scene,
+                                         right_hand_mesh_id,
+                                         right_hand_material_id,
+                                         sVector3{});
+
+    int left_hand_id = scene_add_object(&default_scene,
+                                         left_hand_mesh_id,
+                                         left_hand_material_id,
+                                         sVector3{});
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -263,11 +298,6 @@ android_main(struct android_app* android_app)
             // Switch between VR mode and non VR mode
             app_update_vr_mode(&app);
         }
-
-        // Check bottom presses, and loads the the exit message if necesary
-        // No controller motion
-        app_handle_input(&app);
-
         // Skip frame rendering if there is no a OVR runtime
         if (app.ovr == NULL) {
             continue;
@@ -278,11 +308,25 @@ android_main(struct android_app* android_app)
         const double display_time =
                 vrapi_GetPredictedDisplayTime(app.ovr, app.frame_index);
 
+        /// INPUT MANAGING
+        sControllerInput cont_input;
+        INPUT_get_controller_states(&cont_input, app.ovr, display_time);
 
-        // Get the prediccted tracking positions for controllersm and the projection
+        default_scene.position[right_hand_id] = cont_input.controller_positions[RIGHT_CONTROLLER];
+        default_scene.position[left_hand_id] = cont_input.controller_positions[LEFT_CONTROLLER];
+        default_scene.rotation[right_hand_id] = cont_input.controller_rotations[RIGHT_CONTROLLER];
+        default_scene.rotation[left_hand_id] = cont_input.controller_rotations[LEFT_CONTROLLER];
+
+        default_scene.rotation[ship_1] = cont_input.controller_rotations[LEFT_CONTROLLER];
+        default_scene.rotation[ship_2] = cont_input.controller_rotations[RIGHT_CONTROLLER];
+
+
+        // Get the prediccted tracking positions for the headset and the projection
         // matrices for each eye
         ovrTracking2 tracking =
                 vrapi_GetPredictedTracking2(app.ovr, display_time);
+
+
 
         // Creates a world view layer and configures it
         ovrLayerProjection2 layer = vrapi_DefaultLayerProjection2();

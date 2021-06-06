@@ -52,7 +52,7 @@ void render_init(sMeshRenderer  *renderer,
 
 
 
-void render_mesh(framebuffer         *framebuffer,
+void render_mesh(basic_framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
                  const sMat44        *model_mat,
                  const ovrTracking2  *tracking,

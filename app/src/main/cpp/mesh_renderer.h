@@ -9,7 +9,7 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 #include "shader.h"
 #include "mesh.h"
 #include "math.h"
@@ -29,7 +29,7 @@ void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static);
 
-void render_mesh(framebuffer         *framebuffer,
+void render_mesh(basic_framebuffer         *framebuffer,
                  const sMeshRenderer *renderer,
                  const sMat44        *model_mat,
                  const ovrTracking2  *tracking,

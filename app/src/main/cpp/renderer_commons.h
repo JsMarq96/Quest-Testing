@@ -9,11 +9,11 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 
 struct sToRenderFrame {
     ovrLayerProjection2    world_view_layer;
-    framebuffer            framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
+    basic_framebuffer            framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
 };
 
 void init_frame_struct(sToRenderFrame *frame);

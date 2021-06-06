@@ -119,6 +119,7 @@ void scene_render(const sScene           *scene,
     for(int i = 0; i < MAX_INSTANCE_SIZE; i++) {
         if (scene->enabled[i]) {
             render_models[index].set_identity();
+            render_models[index].rotate(&scene->rotation[i]);
             render_models[index].set_position(scene->position[i]);
             render_instances[index].material_index = scene->render_instances[i].material_index;
             render_instances[index].mesh_index = scene->render_instances[i].mesh_index;

@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 /**
  * Single header Math library with usefull utilities and structures
@@ -17,7 +18,9 @@ inline float abs_diff(const float  x,
                       const float  y) {
     return (x > y) ? x - y : y - x;
 }
-
+struct sQuaternion4;
+union sMat44;
+void convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat);
 
 union sVector2 {
     struct { float x = 0.0f; float y = 0.0f;};
@@ -69,6 +72,13 @@ union sMat33 {
         sx1 = vec.x;
         sy2 = vec.y;
     }
+};
+
+struct sQuaternion4 {
+    float q0 = 0.0f;
+    float q1 = 0.0f;
+    float q2 = 0.0f;
+    float q3 = 0.0f;
 };
 
 union sMat44 {
@@ -133,6 +143,12 @@ union sMat44 {
         memcpy(mat_values, result.mat_values, sizeof(float) * 16);
     }
 
+    inline void
+    rotate(const sQuaternion4 *quat) {
+        sMat44 matrix;
+        convert_quaternion_to_matrix(quat, &matrix);
+        multiply(&matrix);
+    }
 
     inline sVector4 multiply(const sVector4   vect) {
         sVector4 result;
@@ -278,5 +294,20 @@ union sMat44 {
         }
     }
 };
+
+inline void
+convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat) {
+    mat->mat_values[0][0] = 2.0f * (quat->q0 * quat->q0 + quat->q1 * quat->q1) - 1;
+    mat->mat_values[1][0] = 2.0f * (quat->q1 * quat->q1 + quat->q0 * quat->q3);
+    mat->mat_values[2][0] = 2.0f * (quat->q1 * quat->q3 - quat->q0 * quat->q2);
+
+    mat->mat_values[0][1] = 2.0f * (quat->q1 * quat->q2 - quat->q0 * quat->q3);
+    mat->mat_values[1][1] = 2.0f * (quat->q0 * quat->q0 + quat->q2 * quat->q2) - 1;
+    mat->mat_values[2][1] = 2.0f * (quat->q2 * quat->q3 + quat->q0 * quat->q1);
+
+    mat->mat_values[0][2] = 2.0f * (quat->q1 * quat->q3 + quat->q0 * quat->q2);
+    mat->mat_values[1][2] = 2.0f * (quat->q2 * quat->q3 - quat->q0 * quat->q1);
+    mat->mat_values[2][2  ] = 2.0f * (quat->q0 * quat->q0 + quat->q3 * quat->q3) - 1;
+}
 
 #endif // __MATH_H_

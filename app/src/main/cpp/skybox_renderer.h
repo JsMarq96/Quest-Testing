@@ -9,7 +9,7 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 #include "texture.h"
 #include "shader.h"
 #include "mesh.h"

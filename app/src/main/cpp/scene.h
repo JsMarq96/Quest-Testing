@@ -23,7 +23,7 @@ struct sScene {
     bool            initialized            [MAX_INSTANCE_SIZE]    = {false};
     bool            enabled                [MAX_INSTANCE_SIZE]    = {false};
     sVector3        position               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
-    sVector3        rotation               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
+    sQuaternion4    rotation               [MAX_INSTANCE_SIZE]    = {sQuaternion4{0.0f,0.0f, 0.0f, 1.0f}};
     sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
 
     sBatchMeshRenderer  mesh_renderer;
