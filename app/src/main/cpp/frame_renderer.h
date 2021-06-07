@@ -10,11 +10,11 @@
 #include <VrApi_Helpers.h>
 
 #include "mesh_renderer.h"
-#include "basic_framebuffer.h"
 #include "skybox_renderer.h"
 #include "batch_mesh_renderer.h"
 #include "scene.h"
 #include "framebuffer.h"
+#include "common.h"
 
 struct sFrameRenderer {
     sFramebuffers           framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];

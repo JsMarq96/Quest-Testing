@@ -48,7 +48,7 @@ egl_create(struct egl* egl)
     static const EGLint CONFIG_ATTRIBS[] = {
             EGL_RED_SIZE,   8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE,    8,
             EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 0, EGL_STENCIL_SIZE, 0,
-            EGL_SAMPLES,    0, EGL_NONE,
+            EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES,  4, EGL_NONE,
     };
     EGLConfig found_config = NULL;
     for (int i = 0; i < num_configs; ++i) {
