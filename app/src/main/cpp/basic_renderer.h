@@ -10,14 +10,14 @@
 #include <VrApi_Helpers.h>
 
 #include "common.h"
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 #include "basic_renderer.h"
 #include "basic_geometry.h"
 #include "mesh_renderer.h"
 
 struct renderer
 {
-    struct framebuffer framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
+    struct basic_framebuffer framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
     struct program program;
     struct geometry geometry;
 };

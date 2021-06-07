@@ -1,5 +1,5 @@
 //
-// Created by jsmar on 20/05/2021.
+// Created by jsmar on 05/06/2021.
 //
 
 #ifndef QUEST_DEMO_FRAMEBUFFER_H
@@ -7,45 +7,25 @@
 
 #include <GLES3/gl3.h>
 #include <VrApi.h>
-#include <stdlib.h>
 
-#include "common.h"
+#define SWAPCHAIN_LEN 3
 
-struct framebuffer
-{
-    int swap_chain_index;
-    int swap_chain_length;
-    GLsizei width;
-    GLsizei height;
-    ovrTextureSwapChain* color_texture_swap_chain;
-    GLuint* depth_renderbuffers;
-    GLuint* framebuffers;
+struct sFramebuffers {
+    unsigned int         framebuffers        [SWAPCHAIN_LEN]     = {0};
+    unsigned int         depth_renderbuffers [SWAPCHAIN_LEN]     = {0};
+
+    ovrTextureSwapChain   *ovr_color_swapchain   = NULL;
+
+    int  swapchain_index  =  0;
+    int  width            = -1;
+    int  height           = -1;
 };
 
+//// LIFECYCLE FUNCTIONS
+void framebuffers_init(sFramebuffers  *to_init,
+                       const int      width,
+                       const int      height);
 
-void
-framebuffer_create(struct framebuffer* framebuffer,GLsizei width,GLsizei height);
+void framebuffers_destroy(sFramebuffers *to_init);
 
-void
-framebuffer_destroy(struct framebuffer* framebuffer);
-
-
-static const char*
-gl_get_framebuffer_status_string(GLenum status)
-{
-    switch (status) {
-        case GL_FRAMEBUFFER_UNDEFINED:
-            return "GL_FRAMEBUFFER_UNDEFINED";
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-            return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-            return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-            return "GL_FRAMEBUFFER_UNSUPPORTED";
-        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-            return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
-        default:
-            abort();
-    }
-}
 #endif //QUEST_DEMO_FRAMEBUFFER_H

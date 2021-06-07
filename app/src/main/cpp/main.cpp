@@ -18,8 +18,6 @@
 #include "math.h"
 #include "shader.h"
 #include "display_layer.h"
-#include "basic_renderer.h"
-#include "basic_geometry.h"
 #include "basic_framebuffer.h"
 #include "shader_program.h"
 #include "common.h"
@@ -39,7 +37,6 @@ struct app
 {
     ovrJava* java;
     struct egl egl;
-    struct renderer renderer;
     bool resumed;
     ANativeWindow* window;
     ovrMobile* ovr;
@@ -164,14 +161,10 @@ static void
 app_destroy(struct app* app)
 {
     egl_destroy(&app->egl);
-    renderer_destroy(&app->renderer);
 }
 
 
 sAssMan ass_man_instance;
-
-#define LEFT_CONTROLLER_ID 0
-#define RIGHT_CONTROLLER_ID 1
 
 
 void

@@ -10,7 +10,7 @@ void init_frame_renderer(sFrameRenderer *frame_rend,
                          const unsigned int width,
                          const unsigned int height) {
     for (int i = 0; i < VRAPI_FRAME_LAYER_EYE_MAX; ++i) {
-        framebuffer_create(&frame_rend->framebuffers[i], width, height);
+        framebuffers_init(&frame_rend->framebuffers[i], width, height);
     }
 }
 
@@ -21,17 +21,17 @@ void render_frame(sFrameRenderer      *frame_render,
     frame_render->frame_layer.Header.Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
     frame_render->frame_layer.HeadPose = tracking->HeadPose;
 
-    // Config the layers and the opengl framebuffer
+    // Config the layers and the opengl basic_framebuffer
     for (int i = 0; i < VRAPI_FRAME_LAYER_EYE_MAX; ++i) {
-        framebuffer *framebuffer = &frame_render->framebuffers[i];
+        sFramebuffers *framebuffer = &frame_render->framebuffers[i];
 
-        frame_render->frame_layer.Textures[i].ColorSwapChain = framebuffer->color_texture_swap_chain;
-        frame_render->frame_layer.Textures[i].SwapChainIndex = framebuffer->swap_chain_index;
+        frame_render->frame_layer.Textures[i].ColorSwapChain = framebuffer->ovr_color_swapchain;
+        frame_render->frame_layer.Textures[i].SwapChainIndex = framebuffer->swapchain_index;
         frame_render->frame_layer.Textures[i].TexCoordsFromTanAngles = ovrMatrix4f_TanAngleMatrixFromProjection( &tracking->Eye[i].ProjectionMatrix);
 
         // Setup the framebuffers
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
-                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
+                          framebuffer->framebuffers[framebuffer->swapchain_index]);
 
         //glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
@@ -44,7 +44,7 @@ void render_frame(sFrameRenderer      *frame_render,
 
         // Setup the framebuffers
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
-                          framebuffer->framebuffers[framebuffer->swap_chain_index]);
+                          framebuffer->framebuffers[framebuffer->swapchain_index]);
 
         //info("Render Scene: %s", scene->name);
         scene_render(scene, tracking, i);
@@ -67,6 +67,6 @@ void render_frame(sFrameRenderer      *frame_render,
         glFlush();
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-        framebuffer->swap_chain_index = (framebuffer->swap_chain_index + 1) % framebuffer->swap_chain_length;
+        framebuffer->swapchain_index = (framebuffer->swapchain_index + 1) % SWAPCHAIN_LEN;
     }
 };

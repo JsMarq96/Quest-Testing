@@ -10,13 +10,14 @@
 #include <VrApi_Helpers.h>
 
 #include "mesh_renderer.h"
-#include "framebuffer.h"
+#include "basic_framebuffer.h"
 #include "skybox_renderer.h"
 #include "batch_mesh_renderer.h"
 #include "scene.h"
+#include "framebuffer.h"
 
 struct sFrameRenderer {
-    framebuffer            framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
+    sFramebuffers           framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];
     ovrLayerProjection2    frame_layer;
 };
 

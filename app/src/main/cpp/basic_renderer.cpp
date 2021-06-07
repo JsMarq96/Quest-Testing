@@ -47,7 +47,7 @@ renderer_render_frame(struct renderer* renderer, ovrTracking2* tracking)
         ovrMatrix4f projection_matrix =
                 ovrMatrix4f_Transpose(&tracking->Eye[i].ProjectionMatrix);
 
-        struct framebuffer* framebuffer = &renderer->framebuffers[i];
+        struct basic_framebuffer* framebuffer = &renderer->framebuffers[i];
 
         layer.Textures[i].ColorSwapChain =
                 framebuffer->color_texture_swap_chain;
