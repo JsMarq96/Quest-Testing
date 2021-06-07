@@ -14,14 +14,14 @@
 #include "common.h"
 
 enum eControllerIds : int {
-    RIGHT_CONTROLLER = 0,
-    LEFT_CONTROLLER,
+    LEFT_CONTROLLER = 0,
+    RIGHT_CONTROLLER,
     CONTROLLER_COUNT
 };
 
 struct sControllerInput {
     sVector3      controller_positions [CONTROLLER_COUNT]  = { sVector3{0.f, 0.f, 0.f} };
-    sQuaternion4   controller_rotations [CONTROLLER_COUNT]  = {sQuaternion4{0.f, 0.f, 0.f, 0.0f} };
+    sQuaternion4  controller_rotations [CONTROLLER_COUNT]  = { sQuaternion4{0.f, 0.f, 0.f, 1.0f} };
     sVector3      controller_speeds    [CONTROLLER_COUNT]  = { sVector3{0.f, 0.f, 0.f} };
 
     // TODO: Button tracking

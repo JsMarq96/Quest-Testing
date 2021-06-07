@@ -145,9 +145,15 @@ union sMat44 {
 
     inline void
     rotate(const sQuaternion4 *quat) {
-        sMat44 matrix;
-        convert_quaternion_to_matrix(quat, &matrix);
-        multiply(&matrix);
+        /*sMat44 tmp_mat_pos;
+        tmp_mat_pos = *this;
+        set_identity();
+        convert_quaternion_to_matrix(quat, this);
+        multiply(&tmp_mat_pos);*/
+        sMat44 tmp_mat, tmp_mat2;
+        convert_quaternion_to_matrix(quat, &tmp_mat);
+        tmp_mat.invert(&tmp_mat2);
+        multiply(&tmp_mat2);
     }
 
     inline sVector4 multiply(const sVector4   vect) {
@@ -307,7 +313,7 @@ convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat) {
 
     mat->mat_values[0][2] = 2.0f * (quat->q1 * quat->q3 + quat->q0 * quat->q2);
     mat->mat_values[1][2] = 2.0f * (quat->q2 * quat->q3 - quat->q0 * quat->q1);
-    mat->mat_values[2][2  ] = 2.0f * (quat->q0 * quat->q0 + quat->q3 * quat->q3) - 1;
+    mat->mat_values[2][2] = 2.0f * (quat->q0 * quat->q0 + quat->q3 * quat->q3) - 1;
 }
 
 #endif // __MATH_H_
