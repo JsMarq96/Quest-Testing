@@ -128,6 +128,56 @@ load_mesh(sMesh        *result,
     result->uv_count = uv_count;
 };
 
+void
+load_cube_mesh(sMesh *result) {
+    float tmp_vertex[36 * 3] = {-1.0f,  1.0f, -1.0f,
+                           -1.0f, -1.0f, -1.0f,
+                           1.0f, -1.0f, -1.0f,
+                           1.0f, -1.0f, -1.0f,
+                           1.0f,  1.0f, -1.0f,
+                           -1.0f,  1.0f, -1.0f,
+
+                           -1.0f, -1.0f,  1.0f,
+                           -1.0f, -1.0f, -1.0f,
+                           -1.0f,  1.0f, -1.0f,
+                           -1.0f,  1.0f, -1.0f,
+                           -1.0f,  1.0f,  1.0f,
+                           -1.0f, -1.0f,  1.0f,
+
+                           1.0f, -1.0f, -1.0f,
+                           1.0f, -1.0f,  1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           1.0f,  1.0f, -1.0f,
+                           1.0f, -1.0f, -1.0f,
+
+                           -1.0f, -1.0f,  1.0f,
+                           -1.0f,  1.0f,  1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           1.0f, -1.0f,  1.0f,
+                           -1.0f, -1.0f,  1.0f,
+
+                           -1.0f,  1.0f, -1.0f,
+                           1.0f,  1.0f, -1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           1.0f,  1.0f,  1.0f,
+                           -1.0f,  1.0f,  1.0f,
+                           -1.0f,  1.0f, -1.0f,
+
+                           -1.0f, -1.0f, -1.0f,
+                           -1.0f, -1.0f,  1.0f,
+                           1.0f, -1.0f, -1.0f,
+                           1.0f, -1.0f, -1.0f,
+                           -1.0f, -1.0f,  1.0f,
+                           1.0f, -1.0f,  1.0f
+    };
+    result->raw_vertex_list = (float *) malloc(sizeof(tmp_vertex));
+    memcpy(result->raw_vertex_list, tmp_vertex, sizeof(tmp_vertex));
+    result->raw_vertex_size = sizeof(tmp_vertex);
+    result->vertex_count = 36;
+}
+
 
 void
 mesh_destroy(sMesh *to_dispose) {

@@ -18,7 +18,6 @@
 #include "math.h"
 #include "shader.h"
 #include "display_layer.h"
-#include "shader_program.h"
 #include "common.h"
 #include "frame_renderer.h"
 #include "mesh.h"
@@ -204,6 +203,7 @@ android_main(struct android_app* android_app)
     //ass_man.root_asset_dir = "/data/data/app.upstairs.quest_sample_project/";
 
     sScene default_scene;
+    create_scene(&default_scene);
 
     // Load example ship
     int ship_mesh_id = scene_resource_add_mesh(&default_scene,
@@ -261,6 +261,15 @@ android_main(struct android_app* android_app)
                                          left_hand_material_id,
                                          sVector3{});
 
+    int test_collider = scene_add_collider(&default_scene,
+                                           sVector3{0.0f, 0.f, 0.0f},
+                                           sVector3{0.015f, .015f, .015f});
+
+    scene_attach_collider_to_object(&default_scene,
+                                    test_collider,
+                                    right_hand_id,
+                                    sVector3{0.0f, -0.05f, 0.0f});
+
     // Create frame renderer
     sFrameRenderer frame_renderer;
     init_frame_renderer(&frame_renderer,
@@ -311,6 +320,13 @@ android_main(struct android_app* android_app)
 
         default_scene.rotation[ship_1] = cont_input.controller_rotations[LEFT_CONTROLLER];
         default_scene.rotation[ship_2] = cont_input.controller_rotations[RIGHT_CONTROLLER];
+
+
+        scene_update(&default_scene, display_time);
+
+        sVector3 da = default_scene.collision_controller.collider_position->origin_point;
+
+        info("Collider pos %f, %f, %f", da.x, da.y, da.z);
 
 
         // Get the prediccted tracking positions for the headset and the projection

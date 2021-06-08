@@ -46,9 +46,9 @@ egl_create(struct egl* egl)
 
     info("choose EGL config");
     static const EGLint CONFIG_ATTRIBS[] = {
-            EGL_RED_SIZE,   8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE,    8,
-            EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 0, EGL_STENCIL_SIZE, 0,
-            EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES,  4, EGL_NONE,
+            EGL_RED_SIZE,   8, EGL_GREEN_SIZE, 8, EGL_BLUE_SIZE, 8,
+            EGL_ALPHA_SIZE, 8, EGL_DEPTH_SIZE, 16,
+            EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES,  4, EGL_NONE
     };
     EGLConfig found_config = NULL;
     for (int i = 0; i < num_configs; ++i) {
@@ -58,7 +58,7 @@ egl_create(struct egl* egl)
         EGLint renderable_type = 0;
         if (eglGetConfigAttrib(egl->display, config, EGL_RENDERABLE_TYPE,
                                &renderable_type) == EGL_FALSE) {
-            error("can't get EGL config renderable type: %s",
+            error("EGL ERROR: can't get EGL config renderable type: %s",
                   egl_get_error_string(eglGetError()));
             exit(EXIT_FAILURE);
         }
@@ -106,6 +106,14 @@ egl_create(struct egl* egl)
     if (found_config == NULL) {
         error("can't choose EGL config");
         exit(EXIT_FAILURE);
+    }
+
+    EGLint msaaBuffers;
+    eglGetConfigAttrib(egl->display, found_config, EGL_SAMPLE_BUFFERS, &msaaBuffers);
+    if (msaaBuffers == 0) {
+        info("NOMSAA");
+    } else {
+        info(" enabled MSAA");
     }
 
     info("free EGL configs");

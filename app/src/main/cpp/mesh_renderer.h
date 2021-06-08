@@ -14,6 +14,7 @@
 #include "shader.h"
 #include "mesh.h"
 #include "math.h"
+#include "raw_shaders.h"
 
 struct sMeshRenderer {
     unsigned int    VAO;
@@ -30,11 +31,15 @@ void render_init(sMeshRenderer  *renderer,
                  const sMesh    *raw_mesh,
                  const bool      is_static);
 
-void render_mesh(sFramebuffers       *framebuffer,
-                 const sMeshRenderer *renderer,
+void render_init_cube(sMeshRenderer *renderer,
+                      const bool is_static);
+
+void render_mesh(const sMeshRenderer *renderer,
                  const sMat44        *model_mat,
                  const ovrTracking2  *tracking,
-                 const unsigned int   eye);
+                 const unsigned int   eye,
+                 const bool           show_wireframe);
 
 void render_destroy(sMeshRenderer  *renderer);
+
 #endif //QUEST_DEMO_MESH_RENDERER_H

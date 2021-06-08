@@ -39,5 +39,8 @@ load_mesh(sMesh *result,
           const char* mesh_dir);
 
 void
+load_cube_mesh(sMesh *result);
+
+void
 mesh_destroy(sMesh *to_dispose);
 #endif //QUEST_DEMO_MESH_H

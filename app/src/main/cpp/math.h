@@ -35,8 +35,6 @@ union sVector3 {
 union sVector4 {
     struct { float x = 0.0f; float y = 0.0f; float z = 0.0f; float w = 0.0f; };
     float raw_values[4];
-
-    sVector4(){};
 };
 
 struct sRect2 {
@@ -157,7 +155,7 @@ union sMat44 {
     }
 
     inline sVector4 multiply(const sVector4   vect) {
-        sVector4 result;
+        sVector4 result {};
         for (int i = 0; i < 4; i++) {
             result.raw_values[i] = (vect.raw_values[0] * mat_values[i][0]) +
                                    (vect.raw_values[1] * mat_values[i][1]) +
