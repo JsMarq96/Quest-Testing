@@ -18,6 +18,13 @@ inline float abs_diff(const float  x,
                       const float  y) {
     return (x > y) ? x - y : y - x;
 }
+
+inline float MAX(float x, float y) { return (x <= y) ? x : y; }
+inline float MIN(float x, float y) { return (x > y) ? x : y; }
+inline int MAX(int x, int y) { return (x <= y) ? x : y; }
+inline int MIN(int x, int y) { return (x > y) ? x : y; }
+
+
 struct sQuaternion4;
 union sMat44;
 void convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat);

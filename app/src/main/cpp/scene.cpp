@@ -6,7 +6,7 @@
 
 
 void create_scene(sScene *new_scene) {
-    AABB_CONTROLLER_init(&new_scene->collision_controller);
+    CC_init(&new_scene->collision_controller);
 }
 
 void destroy_scene(sScene  *to_destroy){
@@ -104,18 +104,18 @@ int scene_add_collider(sScene          *scene,
                        const sVector3  position,
                        const sVector3  dimensions) {
 
-    return AABB_CONTROLLER_add_collider(&scene->collision_controller,
-                                        position,
-                                        dimensions.x,
-                                        dimensions.y,
-                                        dimensions.z);
+    return CC_add_AABB_collider(&scene->collision_controller,
+                                position,
+                                dimensions.x,
+                                dimensions.y,
+                                dimensions.z);
 }
 
 void scene_update(sScene *scene,
                   const double elapsed_time) {
-    AABB_COLLIDER_update(&scene->collision_controller,
-                           scene->position,
-                           scene->rotation);
+    CC_update(&scene->collision_controller,
+              scene->position,
+              scene->rotation);
 }
 
 void scene_render(const sScene           *scene,
@@ -153,9 +153,9 @@ void scene_render(const sScene           *scene,
                eye_index);
 
     info("DEBUG: Rendering the scene's colliders");
-    AABB_CONTROLLER_render(&scene->collision_controller,
-                           tracking,
-                           eye_index);
+    CC_render(&scene->collision_controller,
+              tracking,
+              eye_index);
 
     info("Rendering scene's skybox");
     skybox_render(&scene->skybox_renderer,
@@ -167,7 +167,7 @@ void scene_attach_collider_to_object(sScene           *scene,
                                      const int        colder_index,
                                      const int        obj_index,
                                      const sVector3   relative_position) {
-    sAABBColliderController *controller = &scene->collision_controller;
+    sColliderController *controller = &scene->collision_controller;
 
     controller->collider_object_entanglement[colder_index] = obj_index;
     controller->entangled_position_delta[colder_index] = relative_position;

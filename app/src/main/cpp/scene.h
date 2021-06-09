@@ -13,7 +13,7 @@
 #include "batch_mesh_renderer.h"
 #include "skybox_renderer.h"
 #include "math.h"
-#include "aabb_collider.h"
+#include "collider_controller.h"
 
 #define SCENE_OBJ_MAX 120
 #define MAX_INSTANCE_SIZE 100
@@ -29,7 +29,7 @@ struct sScene {
     sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
 
     /// GAMELOOP COMPONENTS
-    sAABBColliderController  collision_controller;
+    sColliderController  collision_controller;
 
     /// RENDER COMPONENTS
     sBatchMeshRenderer  mesh_renderer;
