@@ -13,21 +13,20 @@
  * by Juan S. Marquerie
  * */
 
+// TODO: cleanup a bit, its getting a bit messy bro
 
-inline float abs_diff(const float  x,
-                      const float  y) {
-    return (x > y) ? x - y : y - x;
-}
-
-inline float MAX(float x, float y) { return (x <= y) ? x : y; }
-inline float MIN(float x, float y) { return (x > y) ? x : y; }
-inline int MAX(int x, int y) { return (x <= y) ? x : y; }
-inline int MIN(int x, int y) { return (x > y) ? x : y; }
-
+//// TYPE DEFINTIONS
 
 struct sQuaternion4;
 union sMat44;
 void convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat);
+
+struct sQuaternion4 {
+    float q0 = 0.0f;
+    float q1 = 0.0f;
+    float q2 = 0.0f;
+    float q3 = 0.0f;
+};
 
 union sVector2 {
     struct { float x = 0.0f; float y = 0.0f;};
@@ -77,13 +76,6 @@ union sMat33 {
         sx1 = vec.x;
         sy2 = vec.y;
     }
-};
-
-struct sQuaternion4 {
-    float q0 = 0.0f;
-    float q1 = 0.0f;
-    float q2 = 0.0f;
-    float q3 = 0.0f;
 };
 
 union sMat44 {
@@ -306,6 +298,54 @@ union sMat44 {
     }
 };
 
+
+//// FUNCTIONS
+
+inline float MAX(float x, float y) { return (x <= y) ? x : y; }
+inline float MIN(float x, float y) { return (x > y) ? x : y; }
+inline int MAX(int x, int y) { return (x <= y) ? x : y; }
+inline int MIN(int x, int y) { return (x > y) ? x : y; }
+
+inline float abs_diff(const float  x,
+                      const float  y) {
+    return (x > y) ? x - y : y - x;
+}
+
+inline float dot_prod(const sVector3 v1, const sVector3 v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+inline sVector3 cross_prod(const sVector3 v1, const sVector3 v2) {
+    return sVector3{v1.y * v2.z - v1.z * v2.y,
+                    v1.z * v2.x - v1.x * v2.y,
+                    v1.x * v2.y - v1.y * v2.x};
+}
+
+// from: https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
+inline sVector3 rotate_vector3(const sVector3 v, const sQuaternion4 quat) {
+    sVector3 result{};
+    sVector3 u = sVector3{quat.q0, quat.q1, quat.q2};
+    float s = quat.q3; // is the ordering right??
+
+    float dot_u_v = dot_prod(u, v);
+    float dot_u_u = dot_prod(u, u);
+    sVector3 cross = cross_prod(u, v);
+
+    result.x = 2.0f * dot_u_v * u.x
+               + (s * s - dot_u_u) * v.x
+               + 2.0f * s * cross.x;
+
+    result.y = 2.0f * dot_u_v * u.y
+               + (s * s - dot_u_u) * v.y
+               + 2.0f * s * cross.y;
+
+    result.z = 2.0f * dot_u_v * u.z
+               + (s * s - dot_u_u) * v.z
+               + 2.0f * s * cross.z;
+
+    return result;
+}
+
 inline void
 convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat) {
     mat->mat_values[0][0] = 2.0f * (quat->q0 * quat->q0 + quat->q1 * quat->q1) - 1;
@@ -320,5 +360,8 @@ convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat) {
     mat->mat_values[1][2] = 2.0f * (quat->q2 * quat->q3 - quat->q0 * quat->q1);
     mat->mat_values[2][2] = 2.0f * (quat->q0 * quat->q0 + quat->q3 * quat->q3) - 1;
 }
+
+
+
 
 #endif // __MATH_H_

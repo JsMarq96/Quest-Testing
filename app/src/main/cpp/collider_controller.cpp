@@ -45,11 +45,13 @@ void CC_update(sColliderController    *col_contr,
                                                          obj_positions[obj_index].z + new_pos.z };
 
         // TODO: Box collider rotation, this works for sphere and AABB
+        // NOTE: is the AABB is bounded it should rotate with the min max of the objetcs's
+        //       mesh... Lets see if we can get away without doing that
     }
 
     // Detect collisions
     int collision_index = 0;
-    // TODO: Naive bubblesort, fine for this stage, but could need some previus optimization
+    // TODO: Naive bubblesort, fine for this stage, but could need some optimization on the future
     for(int i = 0; i < enabled_collider_count; i++) {
         for(int j = i; j < enabled_collider_count; j++) {
             int index_1 = enabled_collider_indexing[i];
@@ -57,27 +59,57 @@ void CC_update(sColliderController    *col_contr,
 
             bool collision_detected = false;
             if (col_contr->collider_type[index_1] == col_contr->collider_type[index_2]) {
+                // Collision between same type colliders
                 switch(index_1) {
                     case AABB_COLLIDER:
-                        if (test_AABB_AABB_collision(col_contr->collider_origin_points[index_1],
-                                                     col_contr->box_collider_sizes[index_1],
-                                                     col_contr->collider_origin_points[index_2],
-                                                     col_contr->box_collider_sizes[index_2])) {
-                            collision_detected = true;
-                        }
+                        collision_detected =
+                                test_AABB_AABB_collision(col_contr->collider_origin_points[index_1],
+                                                         col_contr->box_collider_sizes[index_1],
+                                                         col_contr->collider_origin_points[index_2],
+                                                         col_contr->box_collider_sizes[index_2]);
                         break;
                     case SPHERE_COLLIDER:
-                        if (test_sphere_sphere_collision(col_contr->collider_origin_points[index_1],
-                                                         col_contr->sphere_collider_radius[index_1],
-                                                         col_contr->collider_origin_points[index_2],
-                                                         col_contr->sphere_collider_radius[index_2])) {
-                            collision_detected = true;
-                        }
+                        collision_detected =
+                                test_sphere_sphere_collision(col_contr->collider_origin_points[index_1],
+                                                             col_contr->sphere_collider_radius[index_1],
+                                                             col_contr->collider_origin_points[index_2],
+                                                             col_contr->sphere_collider_radius[index_2]);
                         break;
                     case BOX_COLLIDER:
-                        // TODO: add box collider
+                        // TODO: add box to box collider
                         break;
                 }
+            } else {
+                // Order the indices for making the comparison more straightforward
+                index_1 = MIN(index_1, index_2);
+                index_2 = MAX(index_1, index_2);
+
+                if (index_1 == AABB_COLLIDER) {
+                    switch (index_2) {
+                        case SPHERE_COLLIDER:
+                            collision_detected =
+                                    test_AABB_sphere_collision(col_contr->collider_origin_points[index_1],
+                                                               col_contr->box_collider_sizes[index_1],
+                                                               col_contr->collider_origin_points[index_2],
+                                                               col_contr->sphere_collider_radius[index_2]);
+                            break;
+                        case BOX_COLLIDER:
+                            collision_detected = test_AABB_box_collision(col_contr->collider_origin_points[index_1],
+                                                                         col_contr->box_collider_sizes[index_1],
+                                                                         col_contr->collider_origin_points[index_2],
+                                                                         col_contr->box_collider_sizes[index_2],
+                                                                         col_contr->box_collider_rotations[index_2]);
+                            break;
+
+                    }
+                } else if (index_1 == SPHERE_COLLIDER) {
+                    collision_detected = test_sphere_box_collision(col_contr->collider_origin_points[index_1],
+                                                                   col_contr->sphere_collider_radius[index_1],
+                                                                   col_contr->collider_origin_points[index_2],
+                                                                   col_contr->box_collider_sizes[index_2],
+                                                                   col_contr->box_collider_rotations[index_2]);
+                }
+
             }
 
             if (collision_detected) {

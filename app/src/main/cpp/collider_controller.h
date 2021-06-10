@@ -6,8 +6,8 @@
 #define QUEST_DEMO_COLLIDER_CONTROLLER_H
 
 #include <VrApi.h>
-
 #include <math.h>
+
 #include "math.h"
 #include "mesh_renderer.h"
 
@@ -15,7 +15,7 @@
 #define TAG_SIZE 4
 
 /**
- * AABB collider utility.
+ * Collider utility.
  * Collision resolution will come later
  * A collider can be entangles to a scene object, and move and rotate with it
  * */
@@ -75,7 +75,6 @@ void CC_render(const sColliderController *col_contr,
 
 
 //// COLLIDER MANAGING FUNCTIONS
-
 int CC_add_AABB_collider(sColliderController *controller,
                          const sVector3 position,
                          const float width,
@@ -97,47 +96,157 @@ int CC_add_Box_collider(sColliderController *controller,
 
 //// COLLISION TESTING FUNCTIONS
 // TODO: BOX COLLIDER FUNCTIONS
-inline bool test_AABB_AABB_collision(const sVector3  center1,
+inline bool test_AABB_AABB_collision(const sVector3  aabb_center1,
                                      const sVector3  size1,
-                                     const sVector3  center2,
+                                     const sVector3  aabb_center2,
                                      const sVector3  size2) {
-    return  (center1.x <= (center2.x + size2.x) && (center1.x + size1.x) >= center2.x) &&
-            (center1.y <= (center2.y + size2.y) && (center1.y + size1.y) >= center2.y) &&
-            (center1.z <= (center2.z + size2.z) && (center1.z + size1.z) >= center2.z);
+    return (aabb_center1.x <= (aabb_center2.x + size2.x) && (aabb_center1.x + size1.x) >= aabb_center2.x) &&
+           (aabb_center1.y <= (aabb_center2.y + size2.y) && (aabb_center1.y + size1.y) >= aabb_center2.y) &&
+           (aabb_center1.z <= (aabb_center2.z + size2.z) && (aabb_center1.z + size1.z) >= aabb_center2.z);
 }
 
-inline bool test_sphere_point_collision(const sVector3  center1,
-                                        const float     radius1,
-                                        const sVector3  point) {
-    float center_distance = sqrt(((center1.x - point.x) * (center1.x - point.x)) +
-                                 ((center1.y - point.y) * (center1.y - point.y)) +
-                                 ((center1.z - point.z) * (center1.z - point.z)));
-    return center_distance < radius1;
-}
-
-inline bool test_AABB_sphere_collision(const sVector3  center1,
+inline bool test_AABB_sphere_collision(const sVector3  aabb_center,
                                        const sVector3  size1,
-                                       const sVector3  center2,
+                                       const sVector3  sphere_center,
                                        const float     radius) {
-    float closest_x = MAX(center1.x, MIN(center2.x, center1.x + size1.x));
-    float closest_y = MAX(center1.y, MIN(center2.y, center1.y + size1.y));
-    float closest_z = MAX(center1.z, MIN(center2.z, center1.z + size1.z));
+    float closest_x = MAX(aabb_center.x, MIN(sphere_center.x, aabb_center.x + size1.x));
+    float closest_y = MAX(aabb_center.y, MIN(sphere_center.y, aabb_center.y + size1.y));
+    float closest_z = MAX(aabb_center.z, MIN(sphere_center.z, aabb_center.z + size1.z));
 
-    float distance = sqrt(((closest_x - center2.x) * (closest_x - center2.x)) +
-                          ((closest_y - center2.y) * (closest_y - center2.y)) +
-                          ((closest_z - center2.z) * (closest_z - center2.z)) );
+    float distance = sqrt(((closest_x - sphere_center.x) * (closest_x - sphere_center.x)) +
+                          ((closest_y - sphere_center.y) * (closest_y - sphere_center.y)) +
+                          ((closest_z - sphere_center.z) * (closest_z - sphere_center.z)) );
 
     return distance < radius;
 }
 
 inline bool test_sphere_sphere_collision(const sVector3  center1,
-                                         const float  radius1,
+                                         const float     radius1,
                                          const sVector3  center2,
                                          const float     radius2) {
     float center_distance = sqrt(((center1.x - center2.x) * (center1.x - center2.x)) +
                                  ((center1.y - center2.y) * (center1.y - center2.y)) +
                                  ((center1.z - center2.z) * (center1.z - center2.z)));
     return center_distance < (radius1 + radius2);
+}
+
+inline bool test_sphere_point_collision(const sVector3  sphere_center,
+                                        const float     radius,
+                                        const sVector3  point) {
+    float center_distance = sqrt(((sphere_center.x - point.x) * (sphere_center.x - point.x)) +
+                                 ((sphere_center.y - point.y) * (sphere_center.y - point.y)) +
+                                 ((sphere_center.z - point.z) * (sphere_center.z - point.z)));
+    return center_distance < radius;
+}
+
+inline bool test_AABB_point_collision(const sVector3 aabb_center,
+                                      const sVector3 aabb_size,
+                                      const sVector3 point) {
+    return (point.x >= aabb_center.x && point.x <= (aabb_center.x + aabb_size.x)) &&
+            (point.y >= aabb_center.y && point.y <= (aabb_center.y + aabb_size.y)) &&
+            (point.z >= aabb_center.z && point.z <= (aabb_center.z + aabb_size.z));
+}
+
+inline bool test_AABB_box_collision(const sVector3  aabb_center,
+                                    const sVector3  aabb_size,
+                                    const sVector3  box_center,
+                                    const sVector3  box_size,
+                                    const sQuaternion4 box_rotation) {
+    // Declare points
+    sVector3 p0 = box_center;
+    sVector3 px{box_center.x + box_size.x, box_center.y, box_center.z};
+    sVector3 py{box_center.x, box_center.y  + box_size.y, box_center.z};
+    sVector3 pxy{box_center.x + box_size.x, box_center.y  + box_size.x, box_center.z};
+    sVector3 pz{box_center.x, box_center.y, box_center.z + box_size.z};
+    sVector3 pyz{box_center.x, box_center.y + box_size.y, box_center.z + box_size.z};
+    sVector3 pxyz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
+    sVector3 pxz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
+
+    // Rotate points
+    p0 = rotate_vector3(p0, box_rotation);
+    px = rotate_vector3(px, box_rotation);
+    py = rotate_vector3(py, box_rotation);
+    pxy = rotate_vector3(pxy, box_rotation);
+    pz = rotate_vector3(pz, box_rotation);
+    pyz = rotate_vector3(pyz, box_rotation);
+    pxyz = rotate_vector3(pxyz, box_rotation);
+    pxz = rotate_vector3(pxz, box_rotation);
+
+    return test_AABB_point_collision(aabb_center,
+                                     aabb_size,
+                                     p0) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      px) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      py) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      pxy) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      pz) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      pyz) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      pxyz) &&
+            test_AABB_point_collision(aabb_center,
+                                      aabb_size,
+                                      pxz);
+}
+
+inline bool test_sphere_box_collision(const sVector3     sphere_center,
+                                      const float        sphere_radius,
+                                      const sVector3     box_center,
+                                      const sVector3     box_size,
+                                      const sQuaternion4 box_rotation) {
+    // Declare points
+    sVector3 p0 = box_center;
+    sVector3 px{box_center.x + box_size.x, box_center.y, box_center.z};
+    sVector3 py{box_center.x, box_center.y  + box_size.y, box_center.z};
+    sVector3 pxy{box_center.x + box_size.x, box_center.y  + box_size.x, box_center.z};
+    sVector3 pz{box_center.x, box_center.y, box_center.z + box_size.z};
+    sVector3 pyz{box_center.x, box_center.y + box_size.y, box_center.z + box_size.z};
+    sVector3 pxyz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
+    sVector3 pxz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
+
+    // Rotate points
+    p0 = rotate_vector3(p0, box_rotation);
+    px = rotate_vector3(px, box_rotation);
+    py = rotate_vector3(py, box_rotation);
+    pxy = rotate_vector3(pxy, box_rotation);
+    pz = rotate_vector3(pz, box_rotation);
+    pyz = rotate_vector3(pyz, box_rotation);
+    pxyz = rotate_vector3(pxyz, box_rotation);
+    pxz = rotate_vector3(pxz, box_rotation);
+
+    return test_sphere_point_collision(sphere_center,
+                                       sphere_radius,
+                                       p0) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        px) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        pxy) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        py) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        pz) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        pyz) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        pxyz) &&
+            test_sphere_point_collision(sphere_center,
+                                        sphere_radius,
+                                        pxz);
 }
 
 
