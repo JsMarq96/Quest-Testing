@@ -23,7 +23,7 @@
 enum eColliderType : int {
     AABB_COLLIDER = 0,
     SPHERE_COLLIDER,
-    BOX_COLLIDER
+    OBB_COLLIDER
 };
 
 struct sCollision {
@@ -81,7 +81,7 @@ int CC_add_AABB_collider(sColliderController *controller,
                          const float         heigth,
                          const float         depth);
 
-int CC_add_Box_collider(sColliderController *controller,
+int CC_add_OBB_collider(sColliderController *controller,
                         const sVector3       position,
                         const sQuaternion4   rotation,
                         const float          width,
@@ -141,20 +141,20 @@ inline bool test_AABB_point_collision(const sVector3 aabb_center,
             (point.z >= aabb_center.z && point.z <= (aabb_center.z + aabb_size.z));
 }
 
-inline bool test_AABB_box_collision(const sVector3  aabb_center,
+inline bool test_AABB_OBB_collision(const sVector3  aabb_center,
                                     const sVector3  aabb_size,
                                     const sVector3  box_center,
                                     const sVector3  box_size,
                                     const sQuaternion4 box_rotation) {
-    // Declare points
-    sVector3 p0 = box_center;
-    sVector3 px{box_center.x + box_size.x, box_center.y, box_center.z};
-    sVector3 py{box_center.x, box_center.y  + box_size.y, box_center.z};
-    sVector3 pxy{box_center.x + box_size.x, box_center.y  + box_size.x, box_center.z};
-    sVector3 pz{box_center.x, box_center.y, box_center.z + box_size.z};
-    sVector3 pyz{box_center.x, box_center.y + box_size.y, box_center.z + box_size.z};
-    sVector3 pxyz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
-    sVector3 pxz{box_center.x + box_size.x, box_center.y + box_size.y, box_center.z + box_size.z};
+    // Rotate AABB points to box rotation, and then peform an AABB test
+    sVector3 p0 = aabb_center;
+    sVector3 px{aabb_center.x + aabb_size.x, aabb_center.y, aabb_center.z};
+    sVector3 py{aabb_center.x, aabb_center.y  + aabb_size.y, aabb_center.z};
+    sVector3 pxy{aabb_center.x + aabb_size.x, aabb_center.y  + aabb_size.x, aabb_center.z};
+    sVector3 pz{aabb_center.x, aabb_center.y, aabb_center.z + aabb_size.z};
+    sVector3 pyz{aabb_center.x, aabb_center.y + aabb_size.y, aabb_center.z + aabb_size.z};
+    sVector3 pxyz{aabb_center.x + aabb_size.x, aabb_center.y + aabb_size.y, aabb_center.z + aabb_size.z};
+    sVector3 pxz{aabb_center.x + aabb_size.x, aabb_center.y, aabb_center.z + aabb_size.z};
 
     // Rotate points
     p0 = rotate_vector3(p0, box_rotation);
@@ -166,33 +166,33 @@ inline bool test_AABB_box_collision(const sVector3  aabb_center,
     pxyz = rotate_vector3(pxyz, box_rotation);
     pxz = rotate_vector3(pxz, box_rotation);
 
-    return test_AABB_point_collision(aabb_center,
-                                     aabb_size,
+    return test_AABB_point_collision(box_center,
+                                     box_size,
                                      p0) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      px) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      py) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      pxy) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      pz) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      pyz) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      pxyz) ||
-            test_AABB_point_collision(aabb_center,
-                                      aabb_size,
-                                      pxz);
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     px) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     py) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     pxy) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     pz) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     pyz) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     pxyz) ||
+           test_AABB_point_collision(box_center,
+                                     box_size,
+                                     pxz);
 }
 
-inline bool test_sphere_box_collision(const sVector3     sphere_center,
+inline bool test_sphere_OBB_collision(const sVector3     sphere_center,
                                       const float        sphere_radius,
                                       const sVector3     box_center,
                                       const sVector3     box_size,

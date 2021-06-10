@@ -301,10 +301,10 @@ union sMat44 {
 
 //// FUNCTIONS
 
-inline float MAX(float x, float y) { return (x <= y) ? x : y; }
-inline float MIN(float x, float y) { return (x > y) ? x : y; }
-inline int MAX(int x, int y) { return (x <= y) ? x : y; }
-inline int MIN(int x, int y) { return (x > y) ? x : y; }
+inline float MAX(float x, float y) { return (x >= y) ? x : y; }
+inline float MIN(float x, float y) { return (x < y) ? x : y; }
+inline int MAX(int x, int y) { return (x >= y) ? x : y; }
+inline int MIN(int x, int y) { return (x < y) ? x : y; }
 
 inline float abs_diff(const float  x,
                       const float  y) {
@@ -324,8 +324,8 @@ inline sVector3 cross_prod(const sVector3 v1, const sVector3 v2) {
 // from: https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
 inline sVector3 rotate_vector3(const sVector3 v, const sQuaternion4 quat) {
     sVector3 result{};
-    sVector3 u = sVector3{quat.q0, quat.q1, quat.q2};
-    float s = quat.q3; // is the ordering right??
+    sVector3 u = sVector3{quat.q1, quat.q2, quat.q3};
+    float s = quat.q0;
 
     float dot_u_v = dot_prod(u, v);
     float dot_u_u = dot_prod(u, u);

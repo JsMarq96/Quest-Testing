@@ -69,7 +69,7 @@ void CC_update(sColliderController    *col_contr,
 
 
                 // Collision between same type colliders
-                switch(index_1) {
+                switch(col_contr->collider_type[index_2]) {
                     case AABB_COLLIDER:
                          collision_detected =
                                 test_AABB_AABB_collision(pos_index1,
@@ -84,21 +84,25 @@ void CC_update(sColliderController    *col_contr,
                                                              pos_index2,
                                                              col_contr->sphere_collider_radius[index_2]);
                         break;
-                    case BOX_COLLIDER:
+                    case OBB_COLLIDER:
                         // TODO: add box to box collider
                         break;
                 }
             } else {
                 // Order the indices for making the comparison more straightforward
-                index_1 = MIN(index_1, index_2);
-                index_2 = MAX(index_1, index_2);
+                int min_index = MIN(index_1, index_2);
+                int max_index = MAX(index_1, index_2);
+                index_1 = min_index;
+                index_2 = max_index;
 
                 // Apply entangled position between objects
                 sVector3 pos_index1 = col_contr->collider_origin_points[index_1];
                 sVector3 pos_index2 = col_contr->collider_origin_points[index_2];
+                eColliderType type = col_contr->collider_type[index_1];
+                eColliderType type1 = col_contr->collider_type[index_2];
 
-                if (index_1 == AABB_COLLIDER) {
-                    switch (index_2) {
+                if (col_contr->collider_type[index_1] == AABB_COLLIDER) {
+                    switch (col_contr->collider_type[index_2]) {
                         case SPHERE_COLLIDER:
                             collision_detected =
                                     test_AABB_sphere_collision(pos_index1,
@@ -106,17 +110,17 @@ void CC_update(sColliderController    *col_contr,
                                                                pos_index2,
                                                                col_contr->sphere_collider_radius[index_2]);
                             break;
-                        case BOX_COLLIDER:
-                            collision_detected = test_AABB_box_collision(pos_index1,
+                        case OBB_COLLIDER:
+                            collision_detected = test_AABB_OBB_collision(pos_index1,
                                                                          col_contr->box_collider_sizes[index_1],
-                                                                         col_contr->collider_origin_points[index_2],
                                                                          pos_index2,
+                                                                         col_contr->box_collider_sizes[index_2],
                                                                          col_contr->box_collider_rotations[index_2]);
                             break;
 
                     }
-                } else if (index_1 == SPHERE_COLLIDER) {
-                    collision_detected = test_sphere_box_collision(pos_index1,
+                } else if (col_contr->collider_type[index_1] == SPHERE_COLLIDER) {
+                    collision_detected = test_sphere_OBB_collision(pos_index1,
                                                                    col_contr->sphere_collider_radius[index_1],
                                                                    pos_index2,
                                                                    col_contr->box_collider_sizes[index_2],
@@ -150,14 +154,14 @@ void CC_render(const sColliderController *col_contr,
                const unsigned int            eye_index) {
 
     for(int i = 0; i < MAX_SCENE_COLLIDERS; i++) {
-        if (col_contr->enabled_colliders[i] && (col_contr->collider_type[i] == BOX_COLLIDER || col_contr->collider_type[i] == AABB_COLLIDER)) {
+        if (col_contr->enabled_colliders[i] && (col_contr->collider_type[i] == OBB_COLLIDER || col_contr->collider_type[i] == AABB_COLLIDER)) {
             sMat44 model;
             model.set_position(col_contr->collider_origin_points[i]);
             model.set_scale(sVector3{col_contr->box_collider_sizes[i].x,
                                          col_contr->box_collider_sizes[i].y,
                                          col_contr->box_collider_sizes[i].z});
 
-            if (col_contr->collider_type[i] == BOX_COLLIDER) {
+            if (col_contr->collider_type[i] == OBB_COLLIDER) {
                 model.rotate(&col_contr->box_collider_rotations[i]);
             }
 
@@ -220,7 +224,7 @@ int CC_add_sphere_collider(sColliderController *controller,
     return index;
 }
 
-int CC_add_Box_collider(sColliderController *controller,
+int CC_add_OBB_collider(sColliderController *controller,
                         const sVector3       position,
                         const sQuaternion4   rotation,
                         const float          width,
@@ -239,7 +243,7 @@ int CC_add_Box_collider(sColliderController *controller,
     }
 
     controller->enabled_colliders[index] = true;
-    controller->collider_type[index] = BOX_COLLIDER;
+    controller->collider_type[index] = OBB_COLLIDER;
     controller->collider_origin_points[index] = position;
     controller->box_collider_sizes[index] = sVector3{width, heigth, depth};
     controller->box_collider_rotations[index] = rotation;
