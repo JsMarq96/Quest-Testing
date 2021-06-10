@@ -195,7 +195,7 @@ android_main(struct android_app* android_app)
     android_app->userData = &app;
     android_app->onAppCmd = app_on_cmd;
 
-    vrapi_SetDisplayRefreshRate( app.ovr, 90.0f );
+    vrapi_SetDisplayRefreshRate( app.ovr, 120.0f );
 
     AM_init(&ass_man_instance, java.Env, activity);
     info("Looked up root storage: %s", ass_man_instance.root_asset_dir);
@@ -265,6 +265,12 @@ android_main(struct android_app* android_app)
                                            sVector3{0.0f, 0.f, 0.0f},
                                            sVector3{0.015f, .015f, .015f});
 
+    CC_add_AABB_collider(&default_scene.collision_controller,
+                         sVector3{-.0f, 0.f, 0.0f},
+                         1.115f, 1.115f, 1.115f);
+
+
+
     scene_attach_collider_to_object(&default_scene,
                                     test_collider,
                                     right_hand_id,
@@ -323,10 +329,6 @@ android_main(struct android_app* android_app)
 
 
         scene_update(&default_scene, display_time);
-
-        sVector3 da = default_scene.collision_controller.collider_position->origin_point;
-
-        info("Collider pos %f, %f, %f", da.x, da.y, da.z);
 
 
         // Get the prediccted tracking positions for the headset and the projection

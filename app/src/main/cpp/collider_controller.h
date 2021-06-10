@@ -76,12 +76,6 @@ void CC_render(const sColliderController *col_contr,
 
 //// COLLIDER MANAGING FUNCTIONS
 int CC_add_AABB_collider(sColliderController *controller,
-                         const sVector3 position,
-                         const float width,
-                         const float heigth,
-                         const float depth);
-
-int CC_add_AABB_collider(sColliderController *controller,
                          const sVector3      position,
                          const float         width,
                          const float         heigth,
@@ -174,25 +168,25 @@ inline bool test_AABB_box_collision(const sVector3  aabb_center,
 
     return test_AABB_point_collision(aabb_center,
                                      aabb_size,
-                                     p0) &&
+                                     p0) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      px) &&
+                                      px) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      py) &&
+                                      py) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      pxy) &&
+                                      pxy) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      pz) &&
+                                      pz) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      pyz) &&
+                                      pyz) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
-                                      pxyz) &&
+                                      pxyz) ||
             test_AABB_point_collision(aabb_center,
                                       aabb_size,
                                       pxz);
@@ -225,25 +219,25 @@ inline bool test_sphere_box_collision(const sVector3     sphere_center,
 
     return test_sphere_point_collision(sphere_center,
                                        sphere_radius,
-                                       p0) &&
+                                       p0) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        px) &&
+                                        px) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        pxy) &&
+                                        pxy) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        py) &&
+                                        py) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        pz) &&
+                                        pz) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        pyz) &&
+                                        pyz) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
-                                        pxyz) &&
+                                        pxyz) ||
             test_sphere_point_collision(sphere_center,
                                         sphere_radius,
                                         pxz);

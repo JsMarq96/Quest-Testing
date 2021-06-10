@@ -113,9 +113,13 @@ int scene_add_collider(sScene          *scene,
 
 void scene_update(sScene *scene,
                   const double elapsed_time) {
+    sCollision collision_result[MAX_SCENE_COLLIDERS];
+    int collision_count = 0;
     CC_update(&scene->collision_controller,
               scene->position,
-              scene->rotation);
+              scene->rotation,
+              collision_result,
+              &collision_count);
 }
 
 void scene_render(const sScene           *scene,
