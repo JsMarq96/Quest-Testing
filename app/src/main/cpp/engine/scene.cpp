@@ -3,10 +3,10 @@
 //
 
 #include "scene.h"
-
+#include "../utils/hashmap.h"
 
 void scene_init(sScene        *new_scene) {
-    hashmap_create(40, &new_scene->resource_index_relation);
+    hashmap_create(10, &new_scene->resource_index_relation);
 
     CC_init(&new_scene->collision_controller);
 
@@ -106,7 +106,7 @@ int scene_add_object(sScene          *scene,
 
     hashmap_put(&scene->resource_index_relation,
                 obj_tag,
-                strlen(obj_tag),
+                strlen(obj_tag)+1,
                 &index);
 
     return index;

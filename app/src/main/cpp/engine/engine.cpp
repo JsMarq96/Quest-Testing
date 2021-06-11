@@ -32,6 +32,39 @@ void ENGINE_add_scene(sEngineInstance   *engine,
     // Load the data for the Plan
     sAssMan *ass_man = &ass_man_instance;
 
+    //Add objects that are for default on the scene (aka hands)
+    int r_hand_obj = scene_resource_add_mesh(new_scene,
+                                             "res/raw/right_hand.obj",
+                                             true);
+    int l_hand_obj = scene_resource_add_mesh(new_scene,
+                                             "res/raw/left_hand.obj",
+                                             true);
+    int r_hand_mat = scene_resource_add_material(new_scene,
+                                                 "res/raw/right_hand_tex.jpg",
+                                                 NULL,
+                                                 NULL,
+                                                 basic_vertex_shader,
+                                                 basic_frag_shader);
+    int l_hand_mat = scene_resource_add_material(new_scene,
+                                                 "res/raw/left_hand_tex.jpg",
+                                                 NULL,
+                                                 NULL,
+                                                 basic_vertex_shader,
+                                                 basic_frag_shader);
+
+    int l_hand = scene_add_object(new_scene,
+                                  "lefthand",
+                                  l_hand_obj,
+                                  l_hand_mat,
+                                  sVector3{0.0f, 0.0f, 0.0f});
+
+    int r_hand = scene_add_object(new_scene,
+                                  "right_hand",
+                                  r_hand_obj,
+                                  r_hand_mat,
+                                  sVector3{0.0f, 0.0f, 0.0f});
+
+
     char *scene_plan = NULL;
     AM_fetch_asset(ass_man,
                    scene_plan_dir,

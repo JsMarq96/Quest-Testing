@@ -11,7 +11,6 @@
 
 #include "raw_shaders.h"
 #include "scene.h"
-#include "../utils/json.h"
 
 #define STARTUP_MESH_COUNT 2
 #define STARTUP_MATERIAL_COUNT 2
