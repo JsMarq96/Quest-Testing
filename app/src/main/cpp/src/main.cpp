@@ -225,6 +225,13 @@ android_main(struct android_app* android_app)
                         vrapi_GetSystemPropertyInt(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_WIDTH),
                         vrapi_GetSystemPropertyInt(&java, VRAPI_SYS_PROP_SUGGESTED_EYE_TEXTURE_HEIGHT));
 
+    sEngineInstance engine;
+
+    ENGINE_add_scene(&engine,
+                     "res/raw/test_scene.scene");
+
+    sScene *curr_scene = &engine.curr_scene->curr_scene;
+
     while (!android_app->destroyRequested) {
 
         // Check for events, mainly for shutting down or initializing the OVR runtime
@@ -287,10 +294,10 @@ android_main(struct android_app* android_app)
                 VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
         layer.HeadPose = tracking.HeadPose;
 
-        /*/// FRAME RENDERER
+        /// FRAME RENDERER
         render_frame(&frame_renderer,
-                     &default_scene,
-                     &tracking);*/
+                     curr_scene,
+                     &tracking);
 
         const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
 

@@ -4,9 +4,9 @@
 #ifndef __MATH_H_
 #define __MATH_H_
 
-#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/c++/v1/string.h"
-#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/assert.h"
-#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/c++/v1/math.h"
+#include <string.h>
+#include <assert.h>
+#include "math.h"
 
 /**
  * Single header Math library with usefull utilities and structures

@@ -5,10 +5,10 @@
 #include "engine.h"
 
 void ENGINE_add_scene(sEngineInstance   *engine,
-                      const char        *scene_plan_dir,
-                      void (*scene_update)(double frame_delta)) {
+                      const char        *scene_plan_dir) {
+                      //void (*scene_update)(double frame_delta)) {
     sLinkedListScene *curr_link_instance;
-    if (engine->start_scene_list != NULL) {
+    if (engine->start_scene_list == NULL) {
         engine->start_scene_list = (sLinkedListScene *) malloc(sizeof(sLinkedListScene));
         engine->curr_scene = engine->start_scene_list;
         curr_link_instance = engine->start_scene_list;
@@ -25,7 +25,7 @@ void ENGINE_add_scene(sEngineInstance   *engine,
 
     scene_init(&curr_link_instance->curr_scene);
 
-    curr_link_instance->curr_scene.scene_update = scene_update;
+    //curr_link_instance->curr_scene.scene_update = scene_update;
 
     sScene *new_scene = &curr_link_instance->curr_scene;
 
