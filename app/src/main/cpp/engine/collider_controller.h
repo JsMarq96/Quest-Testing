@@ -6,9 +6,9 @@
 #define QUEST_DEMO_COLLIDER_CONTROLLER_H
 
 #include <VrApi.h>
-#include <math.h>
+#include "../utils/math.h"
 
-#include "math.h"
+#include "../utils/math.h"
 #include "mesh_renderer.h"
 
 #define MAX_SCENE_COLLIDERS 100

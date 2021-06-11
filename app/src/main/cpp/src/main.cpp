@@ -15,21 +15,23 @@
 
 #include <zip.h>
 
-#include "math.h"
-#include "shader.h"
-#include "display_layer.h"
-#include "common.h"
-#include "frame_renderer.h"
-#include "mesh.h"
-#include "mesh_renderer.h"
-#include "asset_manager.h"
-#include "texture.h"
-#include "skybox_renderer.h"
-#include "material.h"
-#include "batch_mesh_renderer.h"
-#include "input.h"
+#include "../utils/math.h"
+#include "../engine/shader.h"
+#include "../engine/display_layer.h"
+#include "../utils/common.h"
+#include "../engine/frame_renderer.h"
+#include "../engine/mesh.h"
+#include "../engine/mesh_renderer.h"
+#include "../utils/asset_manager.h"
+#include "../engine/texture.h"
+#include "../engine/skybox_renderer.h"
+#include "../engine/material.h"
+#include "../engine/batch_mesh_renderer.h"
+#include "../engine/input.h"
 
-#include "raw_shaders.h"
+#include "../engine/raw_shaders.h"
+
+#include "../engine/engine.h"
 
 struct app
 {
@@ -200,68 +202,8 @@ android_main(struct android_app* android_app)
     AM_init(&ass_man_instance, java.Env, activity);
     info("Looked up root storage: %s", ass_man_instance.root_asset_dir);
     info("Looked up apk path: %s", ass_man_instance.apk_dir);
-    //ass_man.root_asset_dir = "/data/data/app.upstairs.quest_sample_project/";
 
-    sScene default_scene;
-    create_scene(&default_scene);
-
-    // Load example ship
-    int ship_mesh_id = scene_resource_add_mesh(&default_scene,
-                                               "res/raw/n_ship.obj",
-                                               true);
-    int ship_material_id = scene_resource_add_material(&default_scene,
-                                                       "res/raw/ship_tex.jpg",
-                                                       NULL,
-                                                       NULL,
-                                                       basic_vertex_shader,
-                                                       basic_frag_shader);
-
-    // Loand mesh and texture of hands
-    int left_hand_mesh_id = scene_resource_add_mesh(&default_scene,
-                                               "res/raw/left_hand.obj",
-                                               true);
-    int right_hand_mesh_id = scene_resource_add_mesh(&default_scene,
-                                                    "res/raw/right_hand.obj",
-                                                    true);
-
-    int right_hand_material_id = scene_resource_add_material(&default_scene,
-                                                       "res/raw/right_hand_tex.jpg",
-                                                       NULL,
-                                                       NULL,
-                                                       basic_vertex_shader,
-                                                       basic_frag_shader);
-    int left_hand_material_id = scene_resource_add_material(&default_scene,
-                                                             "res/raw/left_hand_tex.jpg",
-                                                             NULL,
-                                                             NULL,
-                                                             basic_vertex_shader,
-                                                             basic_frag_shader);
-
-
-    scene_set_skybox(&default_scene, "res/raw/skybox_");
-
-
-    int ship_1 = scene_add_object(&default_scene,
-                                  ship_mesh_id,
-                                  ship_material_id,
-                                  sVector3{5.0f, -2.50f, 0.0f});
-
-    int ship_2 = scene_add_object(&default_scene,
-                                  ship_mesh_id,
-                                  ship_material_id,
-                                  sVector3{-5.0f, -1.5f, 0.0f});
-
-    int right_hand_id = scene_add_object(&default_scene,
-                                         right_hand_mesh_id,
-                                         right_hand_material_id,
-                                         sVector3{});
-
-    int left_hand_id = scene_add_object(&default_scene,
-                                         left_hand_mesh_id,
-                                         left_hand_material_id,
-                                         sVector3{});
-
-    int test_collider = scene_add_collider(&default_scene,
+    /*int test_collider = scene_add_collider(&default_scene,
                                            sVector3{0.0f, 0.f, 0.0f},
                                            sVector3{0.015f, .015f, .015f});
 
@@ -275,7 +217,7 @@ android_main(struct android_app* android_app)
     scene_attach_collider_to_object(&default_scene,
                                     test_collider,
                                     right_hand_id,
-                                    sVector3{0.0f, -0.05f, 0.0f});
+                                    sVector3{0.0f, -0.05f, 0.0f});*/
 
     // Create frame renderer
     sFrameRenderer frame_renderer;
@@ -320,7 +262,7 @@ android_main(struct android_app* android_app)
         sControllerInput cont_input;
         INPUT_get_controller_states(&cont_input, app.ovr, display_time);
 
-        default_scene.position[right_hand_id] = cont_input.controller_positions[RIGHT_CONTROLLER];
+        /*default_scene.position[right_hand_id] = cont_input.controller_positions[RIGHT_CONTROLLER];
         default_scene.position[left_hand_id] = cont_input.controller_positions[LEFT_CONTROLLER];
         default_scene.rotation[right_hand_id] = cont_input.controller_rotations[RIGHT_CONTROLLER];
         default_scene.rotation[left_hand_id] = cont_input.controller_rotations[LEFT_CONTROLLER];
@@ -329,7 +271,7 @@ android_main(struct android_app* android_app)
         default_scene.rotation[ship_2] = cont_input.controller_rotations[RIGHT_CONTROLLER];
 
 
-        scene_update(&default_scene, display_time);
+        scene_update(&default_scene, display_time);*/
 
 
         // Get the prediccted tracking positions for the headset and the projection
@@ -345,10 +287,10 @@ android_main(struct android_app* android_app)
                 VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
         layer.HeadPose = tracking.HeadPose;
 
-        /// FRAME RENDERER
+        /*/// FRAME RENDERER
         render_frame(&frame_renderer,
                      &default_scene,
-                     &tracking);
+                     &tracking);*/
 
         const ovrLayerHeader2* layers[] = { &frame_renderer.frame_layer.Header };
 

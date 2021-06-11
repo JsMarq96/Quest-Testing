@@ -9,11 +9,11 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
-#include "common.h"
+#include "../utils/common.h"
 #include "framebuffer.h"
 #include "shader.h"
 #include "mesh.h"
-#include "math.h"
+#include "../utils/math.h"
 #include "raw_shaders.h"
 
 struct sMeshRenderer {

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 
-#include "math.h"
+#include "../utils/math.h"
 
 /**
  * Basic OpenGL Shader Class, for shader's IO boilerplate

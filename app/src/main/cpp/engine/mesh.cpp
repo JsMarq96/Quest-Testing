@@ -3,7 +3,7 @@
 //
 
 #include "mesh.h"
-#include "common.h"
+#include "../utils/common.h"
 
 // NOTE: this only works for TRIANGLE ONLY meshes
 void

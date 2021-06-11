@@ -4,9 +4,9 @@
 #ifndef __MATH_H_
 #define __MATH_H_
 
-#include <string.h>
-#include <assert.h>
-#include <math.h>
+#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/c++/v1/string.h"
+#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/assert.h"
+#include "../../../../../../../../AppData/Local/Android/Sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/c++/v1/math.h"
 
 /**
  * Single header Math library with usefull utilities and structures
@@ -17,15 +17,23 @@
 
 //// TYPE DEFINTIONS
 
-struct sQuaternion4;
+union sQuaternion4;
 union sMat44;
 void convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat);
 
-struct sQuaternion4 {
-    float q0 = 0.0f;
-    float q1 = 0.0f;
-    float q2 = 0.0f;
-    float q3 = 0.0f;
+union sQuaternion4 {
+    struct {
+        float q0 = 0.0f;
+        float q1 = 0.0f;
+        float q2 = 0.0f;
+        float q3 = 0.0f;
+    };
+    struct {
+        float w;
+        float x;
+        float y;
+        float z;
+    };
 };
 
 union sVector2 {

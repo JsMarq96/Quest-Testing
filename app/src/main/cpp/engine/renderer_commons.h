@@ -6,8 +6,8 @@
 #define QUEST_DEMO_RENDERER_COMMONS_H
 
 #include <GLES3/gl3.h>
-#include <VrApi.h>
-#include <VrApi_Helpers.h>
+#include "../../vendor/ovr_sdk_mobile/VrApi/Include/VrApi.h"
+#include "../../vendor/ovr_sdk_mobile/VrApi/Include/VrApi_Helpers.h"
 
 #include "basic_framebuffer.h"
 

@@ -8,26 +8,34 @@
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
 
-#include "asset_manager.h"
+#include "../utils/math.h"
+#include "../utils/hashmap.h"
+
+#include "../utils/asset_manager.h"
 #include "mesh.h"
 #include "batch_mesh_renderer.h"
 #include "skybox_renderer.h"
-#include "math.h"
 #include "collider_controller.h"
 
-#define SCENE_OBJ_MAX 120
 #define MAX_INSTANCE_SIZE 100
+
+enum eObjectAttributes : unsigned char {
+    SOLID     = 0b000001,
+    KINEMATIC = 0b000010
+};
 
 struct sScene {
     const char*     name;
 
     /// SCENE DATA
-    bool            initialized            [MAX_INSTANCE_SIZE]    = {false};
-    bool            enabled                [MAX_INSTANCE_SIZE]    = {false};
-    sVector3        position               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
-    sQuaternion4    rotation               [MAX_INSTANCE_SIZE]    = {sQuaternion4{0.0f,0.0f, 0.0f, 1.0f}};
+    bool            initialized            [MAX_INSTANCE_SIZE]    = { false };
+    bool            enabled                [MAX_INSTANCE_SIZE]    = { false };
+    sVector3        position               [MAX_INSTANCE_SIZE]    = { sVector3{0.0f,0.0f, 0.0f} };
+    sQuaternion4    rotation               [MAX_INSTANCE_SIZE]    = { sQuaternion4{0.0f,0.0f, 0.0f, 1.0f} };
     sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
     sVector3        color                  [MAX_INSTANCE_SIZE]    = { sVector3{1.f, 1.f, 1.f} };
+
+    hashmap_s       resource_index_relation;
 
     /// GAMELOOP COMPONENTS
     sColliderController  collision_controller;
@@ -35,11 +43,15 @@ struct sScene {
     /// RENDER COMPONENTS
     sBatchMeshRenderer  mesh_renderer;
     sSkyBoxRenderer     skybox_renderer;
+
+    /// GAME LOOP FUNCTIONS
+    void (*scene_update)(double frame_delta) = NULL;
 };
 
 /// SCENE LIVECYCLE
-void create_scene(sScene *new_scene);
-void destroy_scene(sScene  *to_destroy);
+void scene_init(sScene        *new_scene);
+
+void scene_destroy(sScene  *to_destroy);
 
 void scene_update(sScene *scene,
                   const double elapsed_time);
@@ -65,6 +77,7 @@ void scene_set_skybox(sScene      *scene,
                       const char  *skyboy_dir);
 
 int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
                      const int       mesh_id,
                      const int       material_id,
                      const sVector3  position);

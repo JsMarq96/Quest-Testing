@@ -10,8 +10,8 @@
 #include <VrApi_Input.h>
 #include <GLES3/gl3.h>
 
-#include "math.h"
-#include "common.h"
+#include "../utils/math.h"
+#include "../utils/common.h"
 
 enum eControllerIds : int {
     LEFT_CONTROLLER = 0,

@@ -14,7 +14,7 @@
 #include "batch_mesh_renderer.h"
 #include "scene.h"
 #include "framebuffer.h"
-#include "common.h"
+#include "../utils/common.h"
 
 struct sFrameRenderer {
     sFramebuffers           framebuffers[VRAPI_FRAME_LAYER_EYE_MAX];

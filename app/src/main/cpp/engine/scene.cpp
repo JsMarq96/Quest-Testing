@@ -5,7 +5,9 @@
 #include "scene.h"
 
 
-void create_scene(sScene *new_scene) {
+void scene_init(sScene        *new_scene) {
+    hashmap_create(40, &new_scene->resource_index_relation);
+
     CC_init(&new_scene->collision_controller);
 
     for (int i = 0; i < MAX_INSTANCE_SIZE; i++) {
@@ -13,8 +15,8 @@ void create_scene(sScene *new_scene) {
     }
 }
 
-void destroy_scene(sScene  *to_destroy){
-
+void scene_destroy(sScene  *to_destroy){
+    hashmap_destroy(&to_destroy->resource_index_relation);
 }
 
 int scene_resource_add_mesh(sScene       *scene,
@@ -78,6 +80,7 @@ void scene_set_skybox(sScene      *scene,
 }
 
 int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
                      const int       mesh_id,
                      const int       material_id,
                      const sVector3  position) {
@@ -100,6 +103,11 @@ int scene_add_object(sScene          *scene,
     scene->position[index] = position;
     scene->enabled[index] = true;
     scene->initialized[index] = true;
+
+    hashmap_put(&scene->resource_index_relation,
+                obj_tag,
+                strlen(obj_tag),
+                &index);
 
     return index;
 }
@@ -132,6 +140,8 @@ void scene_update(sScene *scene,
         scene->color[collision_result[0].collider1_index] = sVector3{1.f, 1.f, 1.f};
         scene->color[collision_result[0].collider2_index] = sVector3{1.f, 1.f, 1.f};
     }
+
+    scene->scene_update(elapsed_time);
 }
 
 void scene_render(const sScene           *scene,

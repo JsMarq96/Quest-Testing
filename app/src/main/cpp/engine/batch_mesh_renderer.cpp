@@ -3,7 +3,7 @@
 //
 
 #include "batch_mesh_renderer.h"
-#include "common.h"
+#include "../utils/common.h"
 
 ////  RESOURCE FUNCTIONS
 int BMR_add_mesh(sBatchMeshRenderer *renderer,

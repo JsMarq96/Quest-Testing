@@ -12,7 +12,7 @@
 #include "texture.h"
 #include "shader.h"
 #include "mesh.h"
-#include "math.h"
+#include "../utils/math.h"
 #include "material.h"
 
 #include "raw_shaders.h"
