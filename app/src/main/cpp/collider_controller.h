@@ -30,11 +30,7 @@ struct sCollision {
     int collider1_index           = -1;
     int collider2_index           = -1;
 
-    int collider1_entangled_object = -1;
-    int collider2_entangled_object = -1;
-
-    char collider1_tag[TAG_SIZE]   = "";
-    char collider2_tag[TAG_SIZE]   = "";
+    sVector3 collision_normal{0.0f, 0.0f, 0.0f};
 };
 
 #define DEBUG TRUE
@@ -44,8 +40,8 @@ struct sColliderController {
     int       collider_object_entanglement [MAX_SCENE_COLLIDERS] = { -1 };
 
     eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { AABB_COLLIDER };
-    sVector3       collider_origin_points  [MAX_SCENE_COLLIDERS] = {sVector3{0.0f, 0.f, 0.0f} };
-    sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = {sVector3{0.0f, 0.f, 0.0f} };
+    sVector3       collider_origin_points  [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
+    sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sQuaternion4   box_collider_rotations  [MAX_SCENE_COLLIDERS] = { sQuaternion4{0.0f, 0.0f, 0.0f, 0.0f} };
     float          sphere_collider_radius  [MAX_SCENE_COLLIDERS] = { 0.0f };
 
@@ -88,8 +84,29 @@ int CC_add_OBB_collider(sColliderController *controller,
                         const float          heigth,
                         const float          depth);
 
+inline sVector3 CC_get_collider_center(const sColliderController  *controller,
+                                       const int                   index_id) {
+    sVector3 col_origin = controller->collider_origin_points[index_id];
+    sVector3 box_sizes{}, tmp{}, sizes{};
+    switch(controller->collider_type[index_id]) {
+        case SPHERE_COLLIDER:
+            return col_origin;
+        case AABB_COLLIDER:
+            sizes = controller->box_collider_sizes[index_id];
+            return sVector3{ col_origin.x + (sizes.x / 2.0f),
+                             col_origin.y + (sizes.y / 2.0f),
+                             col_origin.z + (sizes.z / 2.0f)};
+        case OBB_COLLIDER:
+            box_sizes = controller->box_collider_sizes[index_id];
+            tmp =  sVector3{ col_origin.x + (sizes.x / 2.0f),
+                                      col_origin.y + (sizes.y / 2.0f),
+                                      col_origin.z + (sizes.z / 2.0f)};
+            tmp = rotate_vector3(tmp, controller->box_collider_rotations[index_id]);
+            return tmp;
+    }
+}
+
 //// COLLISION TESTING FUNCTIONS
-// TODO: BOX COLLIDER FUNCTIONS
 inline bool test_AABB_AABB_collision(const sVector3  aabb_center1,
                                      const sVector3  size1,
                                      const sVector3  aabb_center2,

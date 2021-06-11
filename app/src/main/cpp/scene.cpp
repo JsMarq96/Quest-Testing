@@ -7,6 +7,10 @@
 
 void create_scene(sScene *new_scene) {
     CC_init(&new_scene->collision_controller);
+
+    for (int i = 0; i < MAX_INSTANCE_SIZE; i++) {
+        new_scene->color[i] =  { 1.0f, 1.0f, 1.0f };
+    }
 }
 
 void destroy_scene(sScene  *to_destroy){
@@ -120,6 +124,14 @@ void scene_update(sScene *scene,
               scene->rotation,
               collision_result,
               &collision_count);
+
+    if (collision_count > 0) {
+        scene->color[collision_result[0].collider1_index] = sVector3{0.5f, 0.f, 0.f};
+        scene->color[collision_result[0].collider2_index] = sVector3{0.5f, 0.f, 0.f};
+    } else {
+        scene->color[collision_result[0].collider1_index] = sVector3{1.f, 1.f, 1.f};
+        scene->color[collision_result[0].collider2_index] = sVector3{1.f, 1.f, 1.f};
+    }
 }
 
 void scene_render(const sScene           *scene,
@@ -134,6 +146,7 @@ void scene_render(const sScene           *scene,
     }
 
     sMat44 *render_models = (sMat44*) malloc(sizeof(sMat44) * obj_to_render_count);
+    sVector3 *render_colors = (sVector3*) malloc(sizeof(sVector3) * obj_to_render_count);
     sRenderInstance *render_instances = (sRenderInstance*) malloc(sizeof(sRenderInstance) * obj_to_render_count);
 
     int index = 0;
@@ -144,6 +157,7 @@ void scene_render(const sScene           *scene,
             render_models[index].set_position(scene->position[i]);
             render_instances[index].material_index = scene->render_instances[i].material_index;
             render_instances[index].mesh_index = scene->render_instances[i].mesh_index;
+            render_colors[index] = scene->color[i];
             index++;
         }
     }
@@ -152,6 +166,7 @@ void scene_render(const sScene           *scene,
     BMR_render(&scene->mesh_renderer,
                render_models,
                render_instances,
+               render_colors,
                obj_to_render_count,
                tracking,
                eye_index);

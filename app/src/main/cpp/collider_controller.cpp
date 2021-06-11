@@ -67,7 +67,6 @@ void CC_update(sColliderController    *col_contr,
                 sVector3 size_index1 = col_contr->box_collider_sizes[index_1];
                 sVector3 size_index2 = col_contr->box_collider_sizes[index_2];
 
-
                 // Collision between same type colliders
                 switch(col_contr->collider_type[index_2]) {
                     case AABB_COLLIDER:
@@ -98,11 +97,11 @@ void CC_update(sColliderController    *col_contr,
                 // Apply entangled position between objects
                 sVector3 pos_index1 = col_contr->collider_origin_points[index_1];
                 sVector3 pos_index2 = col_contr->collider_origin_points[index_2];
-                eColliderType type = col_contr->collider_type[index_1];
-                eColliderType type1 = col_contr->collider_type[index_2];
+                eColliderType collider_type_1 = col_contr->collider_type[index_1];
+                eColliderType collider_type_2 = col_contr->collider_type[index_2];
 
-                if (col_contr->collider_type[index_1] == AABB_COLLIDER) {
-                    switch (col_contr->collider_type[index_2]) {
+                if (collider_type_1 == AABB_COLLIDER) {
+                    switch (collider_type_2) {
                         case SPHERE_COLLIDER:
                             collision_detected =
                                     test_AABB_sphere_collision(pos_index1,
@@ -119,7 +118,7 @@ void CC_update(sColliderController    *col_contr,
                             break;
 
                     }
-                } else if (col_contr->collider_type[index_1] == SPHERE_COLLIDER) {
+                } else if (collider_type_1 == SPHERE_COLLIDER) {
                     collision_detected = test_sphere_OBB_collision(pos_index1,
                                                                    col_contr->sphere_collider_radius[index_1],
                                                                    pos_index2,
@@ -134,11 +133,11 @@ void CC_update(sColliderController    *col_contr,
                 result_collisions[collision_index].collider1_index = index_1;
                 result_collisions[collision_index].collider2_index = index_2;
 
-                result_collisions[collision_index].collider1_entangled_object = col_contr->collider_object_entanglement[index_1];
-                result_collisions[collision_index].collider2_entangled_object = col_contr->collider_object_entanglement[index_2];
+                sVector3 center1 = CC_get_collider_center(col_contr, index_1), center2 = CC_get_collider_center(col_contr, index_2);
 
-                memcpy( result_collisions[collision_index].collider1_tag, col_contr->collider_tag[index_1], sizeof(char) * TAG_SIZE);
-                memcpy( result_collisions[collision_index].collider2_tag, col_contr->collider_tag[index_2], sizeof(char) * TAG_SIZE);
+                result_collisions[collision_index].collision_normal = sVector3{ center1.x - center2.x,
+                                                                                center1.y - center2.y,
+                                                                                center1.z - center2.z};
 
                 collision_index++;
             }

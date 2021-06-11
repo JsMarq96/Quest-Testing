@@ -55,6 +55,7 @@ int BMR_add_material(sBatchMeshRenderer *renderer,
 void BMR_render(const sBatchMeshRenderer   *renderer,
                 const sMat44               *models,
                 const sRenderInstance      *render_instances,
+                const sVector3             *render_colors,
                 const int                  obj_count,
                 const ovrTracking2         *tracking,
                 const unsigned int         eye_index);

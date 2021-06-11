@@ -265,9 +265,10 @@ android_main(struct android_app* android_app)
                                            sVector3{0.0f, 0.f, 0.0f},
                                            sVector3{0.015f, .015f, .015f});
 
-    /*CC_add_AABB_collider(&default_scene.collision_controller,
+    CC_add_OBB_collider(&default_scene.collision_controller,
                          sVector3{-1.0f, 0.f, 0.0f},
-                         1.115f, 1.115f, 1.115f);*/
+                         sQuaternion4{1.0f, 0.0f, 0.f, 0.f},
+                         0.5f, 0.5f, 0.5f);
 
 
 

@@ -27,6 +27,7 @@ struct sScene {
     sVector3        position               [MAX_INSTANCE_SIZE]    = {sVector3{0.0f,0.0f, 0.0f}};
     sQuaternion4    rotation               [MAX_INSTANCE_SIZE]    = {sQuaternion4{0.0f,0.0f, 0.0f, 1.0f}};
     sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
+    sVector3        color                  [MAX_INSTANCE_SIZE]    = { sVector3{1.f, 1.f, 1.f} };
 
     /// GAMELOOP COMPONENTS
     sColliderController  collision_controller;

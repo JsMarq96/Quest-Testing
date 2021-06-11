@@ -43,9 +43,10 @@ static const char basic_frag_shader[] = "#version 300 es\n"
                                         "in lowp vec2 uv_pos;\n"
                                         "out lowp vec4 out_color;\n"
                                         "uniform sampler2D u_colormap;\n"
+                                        "uniform vec3 u_color;\n"
                                         "void main()\n"
                                         "{\n"
-                                        "	out_color = vec4(texture(u_colormap, uv_pos).xyz, 1.0);\n"
+                                        "	out_color = vec4(texture(u_colormap, uv_pos).xyz * u_color, 1.0);\n"
                                         "}\n";
 
 static const char skybox_vertex_shader[] = "#version 300 es\n"

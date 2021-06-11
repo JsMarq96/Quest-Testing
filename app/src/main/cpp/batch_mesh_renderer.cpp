@@ -106,6 +106,7 @@ int BMR_add_material(sBatchMeshRenderer *renderer,
 void BMR_render(const sBatchMeshRenderer   *renderer,
                 const sMat44               *models,
                 const sRenderInstance      *render_instances,
+                const sVector3             *render_colors,
                 const int                  obj_count,
                 const ovrTracking2         *tracking,
                 const unsigned int         eye_index) {
@@ -121,7 +122,10 @@ void BMR_render(const sBatchMeshRenderer   *renderer,
 
         material_enable(material_instance);
 
+        sVector3 tmp = render_colors[i];
+
         // TODO: This is kinda yuck yuck bro
+        material_instance->shader.set_uniform_vector3("u_color", render_colors[i].raw_values);
         material_instance->shader.set_uniform_matrix4("u_model_mat", &models[i]);
         material_instance->shader.set_uniform_matrix4("u_view_mat", (sMat44*) &view_matrix);
         material_instance->shader.set_uniform_matrix4("u_proj_mat", (sMat44*) &projection_matrix);
