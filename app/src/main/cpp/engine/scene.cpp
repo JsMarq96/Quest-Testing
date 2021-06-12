@@ -12,6 +12,7 @@ void scene_init(sScene        *new_scene) {
 
     CC_init(&new_scene->collision_controller);
 
+
     for (int i = 0; i < MAX_INSTANCE_SIZE; i++) {
         new_scene->obj_highlight_color[i] =  { 1.0f, 1.0f, 1.0f };
     }
@@ -106,10 +107,10 @@ int scene_add_object(sScene          *scene,
     scene->enabled[index] = true;
     scene->initialized[index] = true;
 
-    KVS_add(&scene->obj_index_storage,
+    /*KVS_add(&scene->obj_index_storage,
             obj_tag,
             strlen(obj_tag)+1,
-            index);
+            index);*/
 
     return index;
 }

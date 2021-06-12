@@ -166,7 +166,7 @@ struct sKVStorage {
     sRadNode  *root_node;
 };
 
-void KVS_init(sKVStorage *storage) {
+inline void KVS_init(sKVStorage *storage) {
     storage->root_node = (sRadNode*) malloc(sizeof(sRadNode));
     RN_init(storage->root_node);
 }

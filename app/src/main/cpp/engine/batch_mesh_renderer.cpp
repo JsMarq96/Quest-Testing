@@ -115,10 +115,10 @@ void BMR_render(const sBatchMeshRenderer   *renderer,
 
     for(int i = 0; i < obj_count; i++) {
         const sRenderInstance *rend_instance = &render_instances[i];
-        const sOGLMeshIndexes *mesh_intance = &renderer->mesh_references[rend_instance->mesh_index];
+        const sOGLMeshIndexes *mesh_instance = &renderer->mesh_references[rend_instance->mesh_index];
         const sMaterial *material_instance = &renderer->material_references[rend_instance->material_index];
 
-        glBindVertexArray(mesh_intance->VAO);
+        glBindVertexArray(mesh_instance->VAO);
 
         material_enable(material_instance);
 
@@ -133,9 +133,9 @@ void BMR_render(const sBatchMeshRenderer   *renderer,
         //material_instance->shader.set_uniform("u_normalmap", 1);
         //material_instance->shader.set_uniform("u_specularmap", 2);
 
-        glDrawElements(GL_TRIANGLES, mesh_intance->indices_count, GL_UNSIGNED_INT, NULL);
+        glDrawElements(GL_TRIANGLES, mesh_instance->indices_count, GL_UNSIGNED_INT, NULL);
 
-        info("Rendered mesh %i  with %i indexes", i, mesh_intance->indices_count);
+        info("Rendered mesh %i  with %i indexes", i, mesh_instance->indices_count);
 
         material_disable(material_instance);
 

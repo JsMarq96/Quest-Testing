@@ -53,7 +53,7 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                                                  basic_frag_shader);
 
     int l_hand = scene_add_object(new_scene,
-                                  "lefthand",
+                                  "left_hand",
                                   l_hand_obj,
                                   l_hand_mat,
                                   sVector3{0.0f, 0.0f, 0.0f});
@@ -92,7 +92,7 @@ void ENGINE_add_scene(sEngineInstance   *engine,
             char name_buffer[10];
             sscanf(line_buffer, "NAME %s\n", &buffer);
 
-        } else if (line_buffer[0] == 'S') { // set Skybox
+        } else if (line_buffer[0] == 'S' && line_buffer[1] == 'K') { // set Skybox
             sscanf(line_buffer, "SKYBOX %s\n", &buffer);
             scene_set_skybox(new_scene, buffer);
         } else if (line_buffer[0] == 'M') {
@@ -138,9 +138,9 @@ void ENGINE_add_scene(sEngineInstance   *engine,
             rotation.y = y;
             rotation.z = z;
         } else if (line_buffer[0] == 'M') { // Get mesh and material
-            sscanf(line_buffer, "MESH-MATERIAL &d %d\n", &mesh_index, &material_index);
+            sscanf(line_buffer, "MESH-MATERIAL %d %d\n", &mesh_index, &material_index);
             mesh_index += STARTUP_MESH_COUNT;
-            material_index += material_index;
+            material_index += STARTUP_MATERIAL_COUNT;
         } else if (line_buffer[0] == 'O' && line_buffer[4] == 'E') { // Save as an object
             scene_add_object(new_scene,
                              name,
