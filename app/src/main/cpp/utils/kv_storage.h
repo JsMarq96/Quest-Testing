@@ -50,6 +50,41 @@ inline bool RadNode_is_leaf(sRadNode *node) {
     return node->result != NULL;
 }
 
+inline bool Rad_Node_get(sRadNode *node,
+                        const char *key,
+                        const int key_len,
+                        uKVStorage *to_retrieve) {
+    int index = (int) *key;
+
+    // Early stop
+    if (!node->is_full[index]) {
+        return false;
+    }
+
+    sRadNode *it_node = node->children[index];
+
+    // Traverse the tree until a leaf is found
+    char *res_key = (char*) key;
+    while(!RadNode_is_leaf(it_node)) {
+        int similarity = string_similarity(res_key, it_node->key);
+
+        if (similarity < it_node->key_len) { // No match
+            return false;
+        }
+
+        res_key += similarity;
+        if (!it_node->is_full[(int) *res_key]) { // Also no match
+            return false;
+        }
+
+        // Step down to the next level
+        it_node = it_node->children[(int) *res_key];
+    }
+
+    memcpy(to_retrieve, &it_node->result, sizeof(uKVStorage));
+    return true;
+}
+
 inline void Rad_Node_add(sRadNode *node,
                          const char *key,
                          const int key_len,
@@ -73,8 +108,8 @@ inline void Rad_Node_add(sRadNode *node,
     sRadNode *it_node = node->children[index];
     char *res_key = (char*) key;
     int res_key_len = key_len;
-    bool t;
-    while(t) {
+
+    while(true) {
         int old_index = (int) *it_node->key;
         int similarity = string_similarity(res_key, it_node->key);
 
@@ -117,7 +152,10 @@ inline void Rad_Node_add(sRadNode *node,
             // Add the new leafs to the new root
             new_root->children[(int) *new_leaf->key] = new_leaf;
             new_root->children[(int) *it_node->key] = it_node;
+            new_root->is_full[(int) *new_leaf->key] = true;
+            new_root->is_full[(int) *it_node->key] = true;
             prev_node->children[old_index] = new_root;
+            break;
         }
 
     }
@@ -167,5 +205,30 @@ inline void KVS_add(sKVStorage *kv_storage, const char *key,
                  key_len,
                  &result);
 }
+
+inline int KVS_get_int(sKVStorage *kv_storage,
+                   const char* key,
+                   const int key_len) {
+    uKVStorage result;
+    bool success = Rad_Node_get(kv_storage->root_node,
+                                key,
+                                key_len,
+                                &result);
+
+    return (success) ? result.integer : -1;
+}
+
+inline float KVS_get_float(sKVStorage *kv_storage,
+                     const char* key,
+                     const int key_len) {
+    uKVStorage result;
+    bool success = Rad_Node_get(kv_storage->root_node,
+                                key,
+                                key_len,
+                                &result);
+
+    return (success) ? result.floating_point : -1;
+}
+
 
 #endif //QUEST_DEMO_KV_STORAGE_H
