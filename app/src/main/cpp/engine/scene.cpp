@@ -3,20 +3,22 @@
 //
 
 #include "scene.h"
-#include "../utils/hashmap.h"
+#include "../utils/kv_storage.h"
 
 void scene_init(sScene        *new_scene) {
-    hashmap_create(10, &new_scene->resource_index_relation);
+    KVS_init(&new_scene->obj_index_storage);
+    KVS_init(&new_scene->mesh_index_storage);
+    KVS_init(&new_scene->material_index_storage);
 
     CC_init(&new_scene->collision_controller);
 
     for (int i = 0; i < MAX_INSTANCE_SIZE; i++) {
-        new_scene->color[i] =  { 1.0f, 1.0f, 1.0f };
+        new_scene->obj_highlight_color[i] =  { 1.0f, 1.0f, 1.0f };
     }
 }
 
 void scene_destroy(sScene  *to_destroy){
-    hashmap_destroy(&to_destroy->resource_index_relation);
+    //hashmap_destroy(&to_destroy->obj_index_storage);
 }
 
 int scene_resource_add_mesh(sScene       *scene,
@@ -104,10 +106,10 @@ int scene_add_object(sScene          *scene,
     scene->enabled[index] = true;
     scene->initialized[index] = true;
 
-    hashmap_put(&scene->resource_index_relation,
-                obj_tag,
-                strlen(obj_tag)+1,
-                &index);
+    KVS_add(&scene->obj_index_storage,
+            obj_tag,
+            strlen(obj_tag)+1,
+            index);
 
     return index;
 }
@@ -134,14 +136,14 @@ void scene_update(sScene *scene,
               &collision_count);
 
     if (collision_count > 0) {
-        scene->color[collision_result[0].collider1_index] = sVector3{0.5f, 0.f, 0.f};
-        scene->color[collision_result[0].collider2_index] = sVector3{0.5f, 0.f, 0.f};
+        scene->obj_highlight_color[collision_result[0].collider1_index] = sVector3{0.5f, 0.f, 0.f};
+        scene->obj_highlight_color[collision_result[0].collider2_index] = sVector3{0.5f, 0.f, 0.f};
     } else {
-        scene->color[collision_result[0].collider1_index] = sVector3{1.f, 1.f, 1.f};
-        scene->color[collision_result[0].collider2_index] = sVector3{1.f, 1.f, 1.f};
+        scene->obj_highlight_color[collision_result[0].collider1_index] = sVector3{1.f, 1.f, 1.f};
+        scene->obj_highlight_color[collision_result[0].collider2_index] = sVector3{1.f, 1.f, 1.f};
     }
 
-    scene->scene_update(elapsed_time);
+    scene->scene_update(scene, elapsed_time);
 }
 
 void scene_render(const sScene           *scene,
@@ -167,7 +169,7 @@ void scene_render(const sScene           *scene,
             render_models[index].set_position(scene->position[i]);
             render_instances[index].material_index = scene->render_instances[i].material_index;
             render_instances[index].mesh_index = scene->render_instances[i].mesh_index;
-            render_colors[index] = scene->color[i];
+            render_colors[index] = scene->obj_highlight_color[i];
             index++;
         }
     }

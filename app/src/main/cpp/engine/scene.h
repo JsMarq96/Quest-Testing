@@ -9,7 +9,7 @@
 #include <VrApi_Helpers.h>
 
 #include "../utils/math.h"
-#include "../utils/hashmap.h"
+#include "../utils/kv_storage.h"
 
 #include "../utils/asset_manager.h"
 #include "mesh.h"
@@ -33,9 +33,12 @@ struct sScene {
     sVector3        position               [MAX_INSTANCE_SIZE]    = { sVector3{0.0f,0.0f, 0.0f} };
     sQuaternion4    rotation               [MAX_INSTANCE_SIZE]    = { sQuaternion4{0.0f,0.0f, 0.0f, 1.0f} };
     sRenderInstance render_instances       [MAX_INSTANCE_SIZE];
-    sVector3        color                  [MAX_INSTANCE_SIZE]    = { sVector3{1.f, 1.f, 1.f} };
+    sVector3        obj_highlight_color    [MAX_INSTANCE_SIZE]    = { sVector3{1.f, 1.f, 1.f} };
 
-    hashmap_s       resource_index_relation;
+    /// FOR ACCESSING THE DATA FROM THE UPDATE FUNCTIONS
+    sKVStorage      obj_index_storage;
+    sKVStorage      mesh_index_storage;
+    sKVStorage      material_index_storage;
 
     /// GAMELOOP COMPONENTS
     sColliderController  collision_controller;
@@ -45,7 +48,7 @@ struct sScene {
     sSkyBoxRenderer     skybox_renderer;
 
     /// GAME LOOP FUNCTIONS
-    void (*scene_update)(double frame_delta) = NULL;
+    void (*scene_update)(sScene *curr_scene, const double frame_delta) = NULL;
 };
 
 /// SCENE LIVECYCLE

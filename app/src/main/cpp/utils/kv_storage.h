@@ -12,6 +12,7 @@
 //**
 // A simple key value storage utility using a Radix tree
 // by Juan S. Marquerie
+// TODO: Cleanup and dealloc
 // */
 
 inline int string_similarity(char* str1,
