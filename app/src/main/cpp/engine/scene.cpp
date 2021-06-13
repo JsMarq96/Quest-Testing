@@ -107,10 +107,10 @@ int scene_add_object(sScene          *scene,
     scene->enabled[index] = true;
     scene->initialized[index] = true;
 
-    /*KVS_add(&scene->obj_index_storage,
+    KVS_add(&scene->obj_index_storage,
             obj_tag,
             strlen(obj_tag)+1,
-            index);*/
+            index);
 
     return index;
 }

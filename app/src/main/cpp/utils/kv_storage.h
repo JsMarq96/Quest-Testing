@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "common.h"
 
 //**
 // A simple key value storage utility using a Radix tree
@@ -138,6 +139,7 @@ inline void Rad_Node_add(sRadNode *node,
             // Swap the old key with the new, sliced key
             it_node->key_len -= similarity;
             char *it_node_new_key = (char*) malloc(it_node->key_len + 1);
+            memset(it_node_new_key, 0, it_node->key_len + 1);
             strcpy(it_node_new_key, it_node->key + similarity);
             free(it_node->key);
             it_node->key = it_node_new_key;
@@ -146,8 +148,12 @@ inline void Rad_Node_add(sRadNode *node,
             sRadNode *new_leaf = (sRadNode*) malloc(sizeof(sRadNode));
             RN_init(new_leaf);
             new_leaf->key_len = res_key_len;
-            new_leaf->key = (char*) malloc(res_key_len + 1);
-            strcpy(new_leaf->key, res_key);
+            char *tmp = (char*) malloc(res_key_len + 1);
+            memset(tmp, '\0', res_key_len + 1);
+            info("Test %s", res_key);
+            strcpy(tmp, res_key);
+            info("Test2");
+            new_leaf->key = tmp;
             new_leaf->result = to_store;
 
             // Add the new leafs to the new root
@@ -155,7 +161,9 @@ inline void Rad_Node_add(sRadNode *node,
             new_root->children[(int) *it_node->key] = it_node;
             new_root->is_full[(int) *new_leaf->key] = true;
             new_root->is_full[(int) *it_node->key] = true;
-            prev_node->children[old_index] = new_root;
+            if (prev_node != NULL) {
+                prev_node->children[old_index] = new_root;
+            }
             break;
         }
 
