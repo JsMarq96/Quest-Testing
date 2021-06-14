@@ -33,6 +33,8 @@
 
 #include "../engine/engine.h"
 
+#include "test_stage.h"
+
 struct app
 {
     ovrJava* java;
@@ -232,6 +234,12 @@ android_main(struct android_app* android_app)
 
     sScene *curr_scene = &engine.curr_scene->curr_scene;
 
+    curr_scene->scene_update = &test_scene_update;
+
+    info("right hand id %i", KVS_get_int(&curr_scene->obj_index_storage, "right_hand", strlen("right_hand")));
+    info("left hand id %i", KVS_get_int(&curr_scene->obj_index_storage, "left_hand", strlen("left_hand`")));
+    info("ship 2 id %i", KVS_get_int(&curr_scene->obj_index_storage, "ship_2", strlen("ship_2")));
+
     while (!android_app->destroyRequested) {
 
         // Check for events, mainly for shutting down or initializing the OVR runtime
@@ -278,7 +286,9 @@ android_main(struct android_app* android_app)
         default_scene.rotation[ship_2] = cont_input.controller_rotations[RIGHT_CONTROLLER];
 
 
-        scene_update(&default_scene, display_time);*/
+        ;*/
+
+        scene_update(curr_scene, display_time);
 
 
         // Get the prediccted tracking positions for the headset and the projection

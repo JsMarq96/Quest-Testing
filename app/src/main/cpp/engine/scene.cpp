@@ -109,7 +109,7 @@ int scene_add_object(sScene          *scene,
 
     KVS_add(&scene->obj_index_storage,
             obj_tag,
-            strlen(obj_tag)+1,
+            strlen(obj_tag),
             index);
 
     return index;

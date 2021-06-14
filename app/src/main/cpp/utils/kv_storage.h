@@ -35,7 +35,8 @@ union uKVStorage {
 struct sRadNode {
     char        *key          = NULL;
     int        key_len        = 0;
-    uKVStorage *result        = NULL;
+    uKVStorage result;
+    bool       has_result     = false;
 
     sRadNode *children[256];
     bool is_full[256]         = { false };
@@ -45,11 +46,11 @@ inline void RN_init(sRadNode *node) {
     memset(node->is_full, false, 256);
     node->key          = NULL;
     node->key_len        = 0;
-    node->result        = NULL;
+    node->has_result     = false;
 }
 
 inline bool RadNode_is_leaf(sRadNode *node) {
-    return node->result != NULL;
+    return node->has_result;
 }
 
 inline bool Rad_Node_get(sRadNode *node,
@@ -99,6 +100,8 @@ inline void Rad_Node_add(sRadNode *node,
         new_child->key_len = key_len;
         new_child->key = (char*) malloc(key_len + 1);
         strcpy(new_child->key, key);
+        memcpy(&new_child->result, to_store, sizeof(uKVStorage));
+        new_child->has_result = true;
 
         node->is_full[index] = true;
         node->children[index] = new_child;
@@ -106,7 +109,6 @@ inline void Rad_Node_add(sRadNode *node,
         return;
     }
 
-    sRadNode *prev_node = NULL;
     sRadNode *it_node = node->children[index];
     char *res_key = (char*) key;
     int res_key_len = key_len;
@@ -118,7 +120,6 @@ inline void Rad_Node_add(sRadNode *node,
         // NOTE: needs a more case, when the key is bigger than the it_node->key
         if (similarity == it_node->key_len) {
             // Reduce the key and teh key len, and iterate to the next node
-            prev_node = it_node;
             res_key += similarity;
             res_key_len -= similarity;
             it_node = it_node->children[(int) *res_key];
@@ -129,41 +130,38 @@ inline void Rad_Node_add(sRadNode *node,
             res_key += similarity;
             res_key_len -= similarity;
 
-            // Create the new "root" node
-            sRadNode *new_root = (sRadNode*) malloc(sizeof(sRadNode));
-            memcpy(new_root, it_node, sizeof(sRadNode));
-            new_root->key_len = similarity;
-            new_root->key = (char*) malloc(new_root->key_len + 1);
-            memcpy(new_root->key, it_node->key, similarity);
+            // Create a new leaf with the old root
+            sRadNode *new_leaf_1 = (sRadNode*) malloc(sizeof(sRadNode));
+            memcpy(new_leaf_1, it_node, sizeof(sRadNode));
+            new_leaf_1->key = (char*) malloc(strlen(it_node->key) - similarity + 1);
+            strcpy(new_leaf_1->key, similarity + it_node->key);
+            new_leaf_1->key_len = strlen(new_leaf_1->key);
 
-            // Swap the old key with the new, sliced key
-            it_node->key_len -= similarity;
-            char *it_node_new_key = (char*) malloc(it_node->key_len + 1);
-            memset(it_node_new_key, 0, it_node->key_len + 1);
-            strcpy(it_node_new_key, it_node->key + similarity);
+            // Create a new leaf with the result
+            sRadNode *new_leaf_2 = (sRadNode*) malloc(sizeof(sRadNode));
+            RN_init(new_leaf_2);
+            new_leaf_2->key = (char*) malloc(sizeof(sizeof(char) * res_key_len + 1));
+            strcpy(new_leaf_2->key, res_key);
+            new_leaf_2->key_len = res_key_len;
+            memcpy(&new_leaf_2->result, to_store, sizeof(uKVStorage));
+            new_leaf_2->has_result = true;
+
+            // Modify and clean the root
+            memset(it_node->is_full, false, 256);
+            memset(it_node->children, NULL, 256);
+
+            char* tmp = (char*) malloc(similarity + 1);
+            memcpy(tmp, it_node->key, similarity);
+            tmp[similarity] = '\0';
             free(it_node->key);
-            it_node->key = it_node_new_key;
+            it_node->key = tmp;
+            it_node->key_len = similarity;
+            it_node->has_result = false;
 
-            // Create the new leaf node
-            sRadNode *new_leaf = (sRadNode*) malloc(sizeof(sRadNode));
-            RN_init(new_leaf);
-            new_leaf->key_len = res_key_len;
-            char *tmp = (char*) malloc(res_key_len + 1);
-            memset(tmp, '\0', res_key_len + 1);
-            info("Test %s", res_key);
-            strcpy(tmp, res_key);
-            info("Test2");
-            new_leaf->key = tmp;
-            new_leaf->result = to_store;
-
-            // Add the new leafs to the new root
-            new_root->children[(int) *new_leaf->key] = new_leaf;
-            new_root->children[(int) *it_node->key] = it_node;
-            new_root->is_full[(int) *new_leaf->key] = true;
-            new_root->is_full[(int) *it_node->key] = true;
-            if (prev_node != NULL) {
-                prev_node->children[old_index] = new_root;
-            }
+            it_node->children[(int) *new_leaf_1->key] = new_leaf_1;
+            it_node->is_full[(int) *new_leaf_1->key] = true;
+            it_node->children[(int) *new_leaf_2->key] = new_leaf_2;
+            it_node->is_full[(int) *new_leaf_2->key] = true;
             break;
         }
 

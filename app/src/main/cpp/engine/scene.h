@@ -7,6 +7,7 @@
 
 #include <VrApi.h>
 #include <VrApi_Helpers.h>
+#include <string.h>
 
 #include "../utils/math.h"
 #include "../utils/kv_storage.h"
@@ -93,5 +94,12 @@ void scene_attach_collider_to_object(sScene           *scene,
                                      const int        colder_index,
                                      const int        obj_index,
                                      const sVector3   relative_position);
+
+inline int scene_fetch_object_id(const sScene* scene,
+                                 const char* tag) {
+    return KVS_get_int((sKVStorage*) &scene->obj_index_storage,
+                       tag,
+                       strlen(tag));
+}
 
 #endif //QUEST_DEMO_SCENE_H
