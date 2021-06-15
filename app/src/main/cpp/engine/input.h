@@ -13,18 +13,40 @@
 #include "../utils/math.h"
 #include "../utils/common.h"
 
+#define CONTR_SWAPCHAIN 2
+
 enum eControllerIds : int {
     LEFT_CONTROLLER = 0,
     RIGHT_CONTROLLER,
     CONTROLLER_COUNT
 };
 
+enum eControllerButtonState : unsigned char {
+    A_BUTTON        = 0b0000001,
+    B_BUTTON        = 0b0000010,
+    X_BUTTON        = 0b0000100,
+    Y_BUTTON        = 0b0001000,
+    JOY_BUTTON      = 0b0010000,
+    OCULUS_BUTTON   = 0b0100000,
+    MENU_BUTTON     = 0b1000000
+};
+
 struct sControllerInput {
+    /// CONTROLLER POSITION
     sVector3      controller_positions [CONTROLLER_COUNT]  = { sVector3{0.f, 0.f, 0.f} };
     sQuaternion4  controller_rotations [CONTROLLER_COUNT]  = { sQuaternion4{0.f, 0.f, 0.f, 1.0f} };
     sVector3      controller_speeds    [CONTROLLER_COUNT]  = { sVector3{0.f, 0.f, 0.f} };
 
-    // TODO: Button tracking
+    /// BUTTON STATE
+    float         grip_triggers        [CONTROLLER_COUNT]  = { 0.0f };
+    float         main_triggers        [CONTROLLER_COUNT]  = { 0.0f };
+    unsigned char button_state                             = { 0 };
+    float         old_grip_triggers        [CONTROLLER_COUNT]  = { 0.0f };
+    float         old_main_triggers        [CONTROLLER_COUNT]  = { 0.0f };
+    unsigned char old_button_state                             = { 0 };
+
+    /// JOYSTICKS
+    sVector2      joysticks            [CONTROLLER_COUNT] = { sVector2{0.0f, 0.0f} };
 };
 
 void INPUT_get_controller_states(sControllerInput   *controler_state,
