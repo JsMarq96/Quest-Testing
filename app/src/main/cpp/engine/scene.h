@@ -17,6 +17,7 @@
 #include "batch_mesh_renderer.h"
 #include "skybox_renderer.h"
 #include "collider_controller.h"
+#include "input.h"
 
 #define MAX_INSTANCE_SIZE 100
 
@@ -49,7 +50,7 @@ struct sScene {
     sSkyBoxRenderer     skybox_renderer;
 
     /// GAME LOOP FUNCTIONS
-    void (*scene_update)(sScene *curr_scene, const double frame_delta) = NULL;
+    void (*scene_update)(sScene *curr_scene, const sControllerInput  *input, const double frame_delta) = NULL;
 };
 
 /// SCENE LIVECYCLE
@@ -58,6 +59,7 @@ void scene_init(sScene        *new_scene);
 void scene_destroy(sScene  *to_destroy);
 
 void scene_update(sScene *scene,
+                  const sControllerInput  *input,
                   const double elapsed_time);
 
 void scene_render(const sScene           *scene,

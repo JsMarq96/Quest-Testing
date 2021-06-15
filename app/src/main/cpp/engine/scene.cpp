@@ -127,6 +127,7 @@ int scene_add_collider(sScene          *scene,
 }
 
 void scene_update(sScene *scene,
+                  const sControllerInput  *input,
                   const double elapsed_time) {
     sCollision collision_result[MAX_SCENE_COLLIDERS];
     int collision_count = 0;
@@ -144,7 +145,7 @@ void scene_update(sScene *scene,
         scene->obj_highlight_color[collision_result[0].collider2_index] = sVector3{1.f, 1.f, 1.f};
     }
 
-    scene->scene_update(scene, elapsed_time);
+    scene->scene_update(scene, input, elapsed_time);
 }
 
 void scene_render(const sScene           *scene,

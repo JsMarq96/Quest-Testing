@@ -192,7 +192,7 @@ android_main(struct android_app* android_app)
                                     ovr,
                                     display_time);
 
-        scene_update(curr_scene, display_time);
+        scene_update(curr_scene, &cont_input, display_time);
 
         render_frame(&frame_renderer,
                      curr_scene,

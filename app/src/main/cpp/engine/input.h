@@ -53,4 +53,12 @@ void INPUT_get_controller_states(sControllerInput   *controler_state,
                                  ovrMobile          *ovr_instance,
                                  const double       predicted_display_time);
 
+inline bool INPUT_check_button_press(const sControllerInput *contr_state, const eControllerButtonState state) {
+    return (contr_state->button_state & state) && !(contr_state->old_button_state & state);
+}
+
+inline bool INPUT_check_button_release(const sControllerInput *contr_state, const eControllerButtonState state) {
+    return !(contr_state->button_state & state) && (contr_state->old_button_state & state);
+}
+
 #endif //QUEST_DEMO_INPUT_H

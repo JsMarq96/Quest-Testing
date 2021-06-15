@@ -8,6 +8,8 @@
 #include "../engine/scene.h"
 #include "../engine/input.h"
 
-void test_scene_update(sScene *curr_scene, const double frame_delta);
+void test_scene_update(sScene                  *curr_scene,
+                       const sControllerInput  *input,
+                       const double             frame_delta);
 
 #endif //QUEST_DEMO_TEST_STAGE_H

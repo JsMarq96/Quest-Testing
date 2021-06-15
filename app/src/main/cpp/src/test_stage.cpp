@@ -5,9 +5,18 @@
 #include "test_stage.h"
 
 
-void test_scene_update(sScene *curr_scene, const double frame_delta) {
+void test_scene_update(sScene                  *curr_scene,
+                       const sControllerInput  *input,
+                       const double             frame_delta) {
     int left_hand_id = scene_fetch_object_id(curr_scene, "left_hand");
     int right_hand_id = scene_fetch_object_id(curr_scene, "right_hand");
+    int ship_1_id = scene_fetch_object_id(curr_scene, "ship_1");
+    int ship_2_id = scene_fetch_object_id(curr_scene, "ship_2");
 
-    curr_scene->position[left_hand_id] = sVector3{1.0, -1.0f, 0.0f};
+    curr_scene->position[right_hand_id] = input->controller_positions[RIGHT_CONTROLLER];
+    curr_scene->position[left_hand_id] = input->controller_positions[LEFT_CONTROLLER];
+    curr_scene->rotation[right_hand_id] = input->controller_rotations[RIGHT_CONTROLLER];
+    curr_scene->rotation[left_hand_id] = input->controller_rotations[LEFT_CONTROLLER];
+    curr_scene->rotation[ship_1_id] = input->controller_rotations[LEFT_CONTROLLER];
+    curr_scene->rotation[ship_2_id] = input->controller_rotations[RIGHT_CONTROLLER];
 }
