@@ -131,6 +131,22 @@ android_main(struct android_app* android_app)
 
     sScene *curr_scene = &engine.curr_scene->curr_scene;
 
+    int left_hand_id = scene_fetch_object_id(curr_scene, "left_hand");
+    int hand_col_id =  scene_add_collider(curr_scene,
+                       sVector3{},
+                       sVector3{0.05f, 0.05f, 0.05f},
+                       sQuaternion4{1.0f,0.0f,0.0f, 0.0f});
+
+    scene_attach_collider_to_object(curr_scene,
+                                    hand_col_id,
+                                    left_hand_id,
+                                    sVector3{0.0f});
+
+    scene_add_collider(curr_scene,
+                       sVector3{-0.50f, 0.f, 0.f},
+                       sVector3{0.5f, 0.5f, 0.5f},
+                       sQuaternion4{1.0f,0.0f,0.0f, 0.0f});
+
     curr_scene->scene_update = &test_scene_update;
 
     ovrMobile *ovr = NULL;

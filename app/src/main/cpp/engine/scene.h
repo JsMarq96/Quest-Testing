@@ -90,7 +90,8 @@ int scene_add_object(sScene          *scene,
 
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,
-                       const sVector3  dimensions);
+                       const sVector3 dimensions,
+                       const sQuaternion4 rotation);
 
 void scene_attach_collider_to_object(sScene           *scene,
                                      const int        colder_index,

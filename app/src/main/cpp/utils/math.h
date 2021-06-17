@@ -23,7 +23,7 @@ void convert_quaternion_to_matrix(const sQuaternion4 *quat, sMat44 *mat);
 
 union sQuaternion4 {
     struct {
-        float q0 = 0.0f;
+        float q0 = 1.0f;
         float q1 = 0.0f;
         float q2 = 0.0f;
         float q3 = 0.0f;
@@ -332,8 +332,8 @@ inline sVector3 cross_prod(const sVector3 v1, const sVector3 v2) {
 // from: https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
 inline sVector3 rotate_vector3(const sVector3 v, const sQuaternion4 quat) {
     sVector3 result{};
-    sVector3 u = sVector3{quat.q1, quat.q2, quat.q3};
-    float s = quat.q0;
+    sVector3 u = sVector3{quat.x, quat.y, quat.z};
+    float s = quat.w;
 
     float dot_u_v = dot_prod(u, v);
     float dot_u_u = dot_prod(u, u);

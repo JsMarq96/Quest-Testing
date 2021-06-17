@@ -36,13 +36,12 @@ void CC_update(sColliderController    *col_contr,
                                       col_contr->entangled_position_delta[i].y,
                                       col_contr->entangled_position_delta[i].z,
                                       1.0f };
-        sMat44 rot_matrix;
-        convert_quaternion_to_matrix(&obj_rotations[obj_index], &rot_matrix);
-        new_pos = rot_matrix.multiply(new_pos);
 
         col_contr->collider_origin_points[i] = sVector3{ obj_positions[obj_index].x + new_pos.x,
                                                          obj_positions[obj_index].y + new_pos.y,
                                                          obj_positions[obj_index].z + new_pos.z };
+
+        col_contr->box_collider_rotations[i] = obj_rotations[obj_index];
 
         // TODO: Box collider rotation, this works for sphere and AABB
         // NOTE: is the AABB is bounded it should rotate with the min max of the objetcs's
@@ -58,82 +57,19 @@ void CC_update(sColliderController    *col_contr,
             int index_2 = enabled_collider_indexing[j];
 
             bool collision_detected = false;
-            if (col_contr->collider_type[index_1] == col_contr->collider_type[index_2]) {
 
-                // Apply entangled position between objects
-                sVector3 pos_index1 = col_contr->collider_origin_points[index_1];
-                sVector3 pos_index2 = col_contr->collider_origin_points[index_2];
 
-                sVector3 size_index1 = col_contr->box_collider_sizes[index_1];
-                sVector3 size_index2 = col_contr->box_collider_sizes[index_2];
+            if (SAT_OBB_v_OBB(col_contr->collider_origin_points[index_1],
+                              col_contr->box_collider_sizes[index_1],
+                              col_contr->box_collider_rotations[index_1],
+                              col_contr->collider_origin_points[index_2],
+                              col_contr->box_collider_sizes[index_2],
+                              col_contr->box_collider_rotations[index_2])) {
 
-                // Collision between same type colliders
-                switch(col_contr->collider_type[index_2]) {
-                    case AABB_COLLIDER:
-                         collision_detected =
-                                test_AABB_AABB_collision(pos_index1,
-                                                         col_contr->box_collider_sizes[index_1],
-                                                         pos_index2,
-                                                         col_contr->box_collider_sizes[index_2]);
-                        break;
-                    case SPHERE_COLLIDER:
-                        collision_detected =
-                                test_sphere_sphere_collision(pos_index1,
-                                                             col_contr->sphere_collider_radius[index_1],
-                                                             pos_index2,
-                                                             col_contr->sphere_collider_radius[index_2]);
-                        break;
-                    case OBB_COLLIDER:
-                        // TODO: add box to box collider
-                        break;
-                }
-            } else {
-                // Order the indices for making the comparison more straightforward
-                int min_index = MIN(index_1, index_2);
-                int max_index = MAX(index_1, index_2);
-                index_1 = min_index;
-                index_2 = max_index;
-
-                // Apply entangled position between objects
-                sVector3 pos_index1 = col_contr->collider_origin_points[index_1];
-                sVector3 pos_index2 = col_contr->collider_origin_points[index_2];
-                eColliderType collider_type_1 = col_contr->collider_type[index_1];
-                eColliderType collider_type_2 = col_contr->collider_type[index_2];
-
-                if (collider_type_1 == AABB_COLLIDER) {
-                    switch (collider_type_2) {
-                        case SPHERE_COLLIDER:
-                            collision_detected =
-                                    test_AABB_sphere_collision(pos_index1,
-                                                               col_contr->box_collider_sizes[index_1],
-                                                               pos_index2,
-                                                               col_contr->sphere_collider_radius[index_2]);
-                            break;
-                        case OBB_COLLIDER:
-                            collision_detected = test_AABB_OBB_collision(pos_index1,
-                                                                         col_contr->box_collider_sizes[index_1],
-                                                                         pos_index2,
-                                                                         col_contr->box_collider_sizes[index_2],
-                                                                         col_contr->box_collider_rotations[index_2]);
-                            break;
-
-                    }
-                } else if (collider_type_1 == SPHERE_COLLIDER) {
-                    collision_detected = test_sphere_OBB_collision(pos_index1,
-                                                                   col_contr->sphere_collider_radius[index_1],
-                                                                   pos_index2,
-                                                                   col_contr->box_collider_sizes[index_2],
-                                                                   col_contr->box_collider_rotations[index_2]);
-                }
-
-            }
-
-            if (collision_detected) {
-                info("COLLISION BEIBIIII");
+                info("COLLISION BEIBIIII %d %d", index_1, index_2);
                 // Generate the collision manifold
                 result_collisions[collision_index].collider1_index = index_1;
                 result_collisions[collision_index].collider2_index = index_2;
-
 
 
                 collision_index++;
@@ -152,14 +88,13 @@ void CC_render(const sColliderController *col_contr,
     for(int i = 0; i < MAX_SCENE_COLLIDERS; i++) {
         if (col_contr->enabled_colliders[i] && (col_contr->collider_type[i] == OBB_COLLIDER || col_contr->collider_type[i] == AABB_COLLIDER)) {
             sMat44 model;
-            model.set_position(col_contr->collider_origin_points[i]);
             model.set_scale(sVector3{col_contr->box_collider_sizes[i].x,
                                          col_contr->box_collider_sizes[i].y,
                                          col_contr->box_collider_sizes[i].z});
 
-            if (col_contr->collider_type[i] == OBB_COLLIDER) {
-                model.rotate(&col_contr->box_collider_rotations[i]);
-            }
+            model.rotate(&col_contr->box_collider_rotations[i]);
+
+            model.set_position(col_contr->collider_origin_points[i]);
 
             render_mesh(&col_contr->debug_renderer,
                         &model,

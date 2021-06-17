@@ -36,6 +36,10 @@ inline bool intersect_vertex_group_on_axis(const sVector3 obb1[8],
     float min_2 = FLT_MAX;
     float max_2 = FLT_MIN;
 
+    if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
+        return true;
+    }
+
     // Get the min and max position for each vertex group
     // proyected on teh vertex
     for (int i = 0; i < 8; i++) {
@@ -53,48 +57,44 @@ inline bool intersect_vertex_group_on_axis(const sVector3 obb1[8],
     return total_span <= sum;
 }
 
-inline sVector3 get_surface_normal(const sVector3 p1,
-                                   const sVector3 p2,
-                                   const sVector3 p3,
-                                   const sVector3 p4) {
-    sVector3 vn1 = cross_prod(sVector3{p2.x - p1.x, p2.y - p1.y, p2.z - p1.z},
-                              sVector3{p3.x - p1.x, p3.y - p1.y, p3.z - p1.z});
-    sVector3 vn2 = cross_prod(sVector3{p1.x - p4.x, p1.y - p4.y, p1.z - p4.z},
-                              sVector3{p3.x - p4.x, p3.y - p4.y, p3.z - p4.z});
-
-    return sVector3{ (vn1.x + vn2.x) * 0.5f,
-                     (vn1.y + vn2.y) * 0.5f,
-                     (vn1.z + vn2.z) * 0.5f};
-}
-
-inline void get_SAT_normals_from_raw_vertex_lists(const sVector3 box1_vertex[8],
-                                                  const sVector3 box2_vertex[8],
+inline void get_SAT_normals_from_raw_vertex_lists(const sVector3 obb1_origin,
+                                                  const sQuaternion4 rotation1,
+                                                  const sVector3 obb2_origin,
+                                                  const sQuaternion4 rotation2,
                                                   sVector3 *result_normals) {
 
-    result_normals[0] = get_surface_normal(box1_vertex[6],
-                                           box1_vertex[5],
-                                           box1_vertex[0],
-                                           box1_vertex[2]);
-    result_normals[1] = get_surface_normal(box1_vertex[1],
-                                           box1_vertex[2],
-                                           box1_vertex[6],
-                                           box1_vertex[4]);
-    result_normals[2] = get_surface_normal(box1_vertex[4],
-                                           box1_vertex[3],
-                                           box1_vertex[6],
-                                           box1_vertex[5]);
-    result_normals[3] = get_surface_normal(box2_vertex[6],
-                                           box2_vertex[5],
-                                           box2_vertex[0],
-                                           box2_vertex[2]);
-    result_normals[4] = get_surface_normal(box2_vertex[1],
-                                           box2_vertex[2],
-                                           box2_vertex[6],
-                                           box2_vertex[4]);
-    result_normals[5] = get_surface_normal(box2_vertex[4],
-                                           box2_vertex[3],
-                                           box2_vertex[6],
-                                           box2_vertex[5]);
+    result_normals[0] = sVector3{1.0f, 0.0f, 0.0f};
+    result_normals[1] = sVector3{0.0f, 1.0f, 0.0f};
+    result_normals[2] = sVector3{0.0f, 0.0f, 1.0f};
+    result_normals[3] = sVector3{1.0f, 0.0f, 0.0f};
+    result_normals[4] = sVector3{0.0f, 1.0f, 0.0f};
+    result_normals[5] = sVector3{0.0f, 0.0f, 1.0f};
+    result_normals[0] = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, rotation1);
+    result_normals[1] = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, rotation1);
+    result_normals[2] = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, rotation1);
+    result_normals[3] = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, rotation2);
+    result_normals[4] = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, rotation2);
+    result_normals[5] = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, rotation2);
+
+    /*result_normals[0] = sVector3{result_normals[0].x + obb1_origin.x,
+                                 result_normals[0].y + obb1_origin.y,
+                                 result_normals[0].z + obb1_origin.z};
+    result_normals[1] = sVector3{result_normals[1].x + obb1_origin.x,
+                                 result_normals[1].y + obb1_origin.y,
+                                 result_normals[1].z + obb1_origin.z};
+    result_normals[2] = sVector3{result_normals[2].x + obb1_origin.x,
+                                 result_normals[2].y + obb1_origin.y,
+                                 result_normals[2].z + obb1_origin.z};
+    result_normals[3] = sVector3{result_normals[3].x + obb2_origin.x,
+                                 result_normals[3].y + obb2_origin.y,
+                                 result_normals[3].z + obb2_origin.z};
+    result_normals[4] = sVector3{result_normals[4].x + obb2_origin.x,
+                                 result_normals[4].y + obb2_origin.y,
+                                 result_normals[4].z + obb2_origin.z};
+    result_normals[5] = sVector3{result_normals[5].x + obb2_origin.x,
+                                 result_normals[5].y + obb2_origin.y,
+                                 result_normals[5].z + obb2_origin.z};*/
+
     result_normals[6]  = cross_prod(result_normals[0],result_normals[3]);
     result_normals[7]  = cross_prod(result_normals[0],result_normals[4]);
     result_normals[8]  = cross_prod(result_normals[0],result_normals[5]);
@@ -120,13 +120,17 @@ inline bool SAT_OBB_v_OBB(const sVector3 obb1_origin,
     get_OBB_raw_vertex(obb1_origin,
                        obb1_sizes,
                        obb1_rotation,
-                       obb1_vertex);
+                       &obb1_vertex[0]);
     get_OBB_raw_vertex(obb2_origin,
                        obb2_sizes,
                        obb2_rotation,
-                       obb2_vertex);
+                       &obb2_vertex[0]);
 
-    get_SAT_normals_from_raw_vertex_lists(obb1_vertex, obb2_vertex, normal_list);
+    get_SAT_normals_from_raw_vertex_lists(obb1_origin,
+                                          obb1_rotation,
+                                          obb2_origin,
+                                          obb2_rotation,
+                                          &normal_list[0]);
 
     for (int i = 0; i < 15; i++) {
         if(!intersect_vertex_group_on_axis(obb1_vertex,

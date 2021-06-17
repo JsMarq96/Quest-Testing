@@ -7,6 +7,15 @@
 #include <android/log.h>
 #include "../utils/common.h"
 
+void test_scene_start(sScene   *curr_scene) {
+    int left_hand_id = scene_fetch_object_id(curr_scene, "left_hand");
+    scene_add_collider(curr_scene,
+                       sVector3{},
+                       sVector3{0.05f, 0.05f, 0.05f},
+                       sQuaternion4{});
+
+}
+
 void test_scene_update(sScene                  *curr_scene,
                        const sControllerInput  *input,
                        const double             frame_delta) {
