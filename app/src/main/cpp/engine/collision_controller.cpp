@@ -2,7 +2,7 @@
 // Created by jsmar on 07/06/2021.
 //
 
-#include "collider_controller.h"
+#include "collision_controller.h"
 
 //// LIFECYCLE FUNCTIONS
 
@@ -14,7 +14,7 @@ void CC_init(sColliderController *col_contr) {
 void CC_update(sColliderController    *col_contr,
                const sVector3         *obj_positions,
                const sQuaternion4     *obj_rotations,
-               sCollision             *result_collisions,
+               sCollisionManifold             *result_collisions,
                int                    *collision_count) {
     int enabled_collider_count = 0;
     int enabled_collider_indexing[MAX_SCENE_COLLIDERS] = {-1};
@@ -130,14 +130,11 @@ void CC_update(sColliderController    *col_contr,
 
             if (collision_detected) {
                 info("COLLISION BEIBIIII");
+                // Generate the collision manifold
                 result_collisions[collision_index].collider1_index = index_1;
                 result_collisions[collision_index].collider2_index = index_2;
 
-                sVector3 center1 = CC_get_collider_center(col_contr, index_1), center2 = CC_get_collider_center(col_contr, index_2);
 
-                result_collisions[collision_index].collision_normal = sVector3{ center1.x - center2.x,
-                                                                                center1.y - center2.y,
-                                                                                center1.z - center2.z};
 
                 collision_index++;
             }

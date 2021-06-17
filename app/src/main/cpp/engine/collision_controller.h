@@ -2,14 +2,16 @@
 // Created by jsmar on 07/06/2021.
 //
 
-#ifndef QUEST_DEMO_COLLIDER_CONTROLLER_H
-#define QUEST_DEMO_COLLIDER_CONTROLLER_H
+#ifndef QUEST_DEMO_COLLISION_CONTROLLER_H
+#define QUEST_DEMO_COLLISION_CONTROLLER_H
 
 #include <VrApi.h>
 #include "../utils/math.h"
 
 #include "../utils/math.h"
 #include "mesh_renderer.h"
+#include "SAT_collision_testing.h"
+
 
 #define MAX_SCENE_COLLIDERS 100
 #define TAG_SIZE 4
@@ -26,11 +28,14 @@ enum eColliderType : int {
     OBB_COLLIDER
 };
 
-struct sCollision {
-    int collider1_index           = -1;
-    int collider2_index           = -1;
 
-    sVector3 collision_normal{0.0f, 0.0f, 0.0f};
+struct sCollisionManifold {
+    int collider1_index            = -1;
+    int collider2_index            = -1;
+
+    sVector3  collision_normals [3] = {};
+    sVector3  contact_points    [3] = {};
+    float     depth             [3] = {0.0f};
 };
 
 #define DEBUG TRUE
@@ -39,6 +44,7 @@ struct sColliderController {
     bool      enabled_colliders            [MAX_SCENE_COLLIDERS] = { false };
     int       collider_object_entanglement [MAX_SCENE_COLLIDERS] = { -1 };
 
+    bool           is_trigger              [MAX_SCENE_COLLIDERS] = { false };
     eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { AABB_COLLIDER };
     sVector3       collider_origin_points  [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
@@ -62,7 +68,7 @@ void CC_init(sColliderController *col_contr);
 void CC_update(sColliderController    *col_contr,
                const sVector3         *obj_positions,
                const sQuaternion4     *obj_rotations,
-               sCollision             *result_collisions,
+               sCollisionManifold             *result_collisions,
                int                    *collision_count);
 
 void CC_render(const sColliderController *col_contr,
@@ -144,10 +150,11 @@ inline bool test_sphere_sphere_collision(const sVector3  center1,
 inline bool test_sphere_point_collision(const sVector3  sphere_center,
                                         const float     radius,
                                         const sVector3  point) {
-    float center_distance = sqrt(((sphere_center.x - point.x) * (sphere_center.x - point.x)) +
+    float r2 = radius * radius;
+    float center_distance = (((sphere_center.x - point.x) * (sphere_center.x - point.x)) +
                                  ((sphere_center.y - point.y) * (sphere_center.y - point.y)) +
                                  ((sphere_center.z - point.z) * (sphere_center.z - point.z)));
-    return center_distance < radius;
+    return center_distance < r2;
 }
 
 inline bool test_AABB_point_collision(const sVector3 aabb_center,
@@ -261,4 +268,4 @@ inline bool test_sphere_OBB_collision(const sVector3     sphere_center,
 }
 
 
-#endif //QUEST_DEMO_COLLIDER_CONTROLLER_H
+#endif //QUEST_DEMO_COLLISION_CONTROLLER_H

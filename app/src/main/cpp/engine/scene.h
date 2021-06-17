@@ -11,12 +11,12 @@
 
 #include "../utils/math.h"
 #include "../utils/kv_storage.h"
-
 #include "../utils/asset_manager.h"
+
 #include "mesh.h"
 #include "batch_mesh_renderer.h"
 #include "skybox_renderer.h"
-#include "collider_controller.h"
+#include "collision_controller.h"
 #include "input.h"
 
 #define MAX_INSTANCE_SIZE 100

@@ -129,7 +129,7 @@ int scene_add_collider(sScene          *scene,
 void scene_update(sScene *scene,
                   const sControllerInput  *input,
                   const double elapsed_time) {
-    sCollision collision_result[MAX_SCENE_COLLIDERS];
+    sCollisionManifold collision_result[MAX_SCENE_COLLIDERS];
     int collision_count = 0;
     CC_update(&scene->collision_controller,
               scene->position,

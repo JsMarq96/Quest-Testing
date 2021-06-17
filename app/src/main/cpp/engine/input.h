@@ -41,8 +41,8 @@ struct sControllerInput {
     float         grip_triggers        [CONTROLLER_COUNT]  = { 0.0f };
     float         main_triggers        [CONTROLLER_COUNT]  = { 0.0f };
     unsigned char button_state                             = { 0 };
-    float         old_grip_triggers        [CONTROLLER_COUNT]  = { 0.0f };
-    float         old_main_triggers        [CONTROLLER_COUNT]  = { 0.0f };
+    float         old_grip_triggers    [CONTROLLER_COUNT]  = { 0.0f };
+    float         old_main_triggers    [CONTROLLER_COUNT]  = { 0.0f };
     unsigned char old_button_state                             = { 0 };
 
     /// JOYSTICKS

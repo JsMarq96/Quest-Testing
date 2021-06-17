@@ -308,7 +308,7 @@ union sMat44 {
 
 
 //// FUNCTIONS
-
+inline float ABS(float x) { return (x < 0.0f) ? x * -1.0f : x; }
 inline float MAX(float x, float y) { return (x >= y) ? x : y; }
 inline float MIN(float x, float y) { return (x < y) ? x : y; }
 inline int MAX(int x, int y) { return (x >= y) ? x : y; }

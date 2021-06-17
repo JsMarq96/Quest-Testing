@@ -4,6 +4,8 @@
 
 #include "test_stage.h"
 
+#include <android/log.h>
+#include "../utils/common.h"
 
 void test_scene_update(sScene                  *curr_scene,
                        const sControllerInput  *input,
@@ -17,6 +19,12 @@ void test_scene_update(sScene                  *curr_scene,
     curr_scene->position[left_hand_id] = input->controller_positions[LEFT_CONTROLLER];
     curr_scene->rotation[right_hand_id] = input->controller_rotations[RIGHT_CONTROLLER];
     curr_scene->rotation[left_hand_id] = input->controller_rotations[LEFT_CONTROLLER];
-    curr_scene->rotation[ship_1_id] = input->controller_rotations[LEFT_CONTROLLER];
-    curr_scene->rotation[ship_2_id] = input->controller_rotations[RIGHT_CONTROLLER];
+    curr_scene->rotation[ship_2_id] = input->controller_rotations[LEFT_CONTROLLER];
+    curr_scene->rotation[ship_1_id] = input->controller_rotations[RIGHT_CONTROLLER];
+
+    info("CONTROLLER %f %f %f %f",
+         input->controller_rotations[RIGHT_CONTROLLER].x,
+         input->controller_rotations[RIGHT_CONTROLLER].y,
+         input->controller_rotations[RIGHT_CONTROLLER].z,
+         input->controller_rotations[RIGHT_CONTROLLER].w);
 }
