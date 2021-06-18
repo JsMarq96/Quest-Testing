@@ -34,6 +34,11 @@ union sQuaternion4 {
         float y;
         float z;
     };
+
+    inline sQuaternion4 inverse() {
+        float norm = w*w + x*x + y*y + z*z;
+        return sQuaternion4{w / norm, -x / norm, -y / norm, -z / norm};
+    }
 };
 
 union sVector2 {
@@ -329,29 +334,30 @@ inline sVector3 cross_prod(const sVector3 v1, const sVector3 v2) {
                     v1.x * v2.y - v1.y * v2.x};
 }
 
-// from: https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
 inline sVector3 rotate_vector3(const sVector3 v, const sQuaternion4 quat) {
-    sVector3 result{};
-    sVector3 u = sVector3{quat.x, quat.y, quat.z};
+    sMat44 rot;
+    convert_quaternion_to_matrix(&quat, &rot);
+    sVector4 v2 {v.x, v.y, v.z, 0.0f};
+
+    sVector4 yt = rot.multiply(v2);
+
+    return sVector3{yt.x, yt.y, yt.z};
+    /*sVector3 result{};
+    sVector3 q = sVector3{quat.x, quat.y, quat.z};
     float s = quat.w;
 
-    float dot_u_v = dot_prod(u, v);
-    float dot_u_u = dot_prod(u, u);
-    sVector3 cross = cross_prod(u, v);
+    sVector3 t = cross_prod(q, v);
+    t.x *= 2.0f;
+    t.y *= 2.0f;
+    t.z *= 2.0f;
 
-    result.x = 2.0f * dot_u_v * u.x
-               + (s * s - dot_u_u) * v.x
-               + 2.0f * s * cross.x;
+    sVector3 tmp = cross_prod(q, t);
 
-    result.y = 2.0f * dot_u_v * u.y
-               + (s * s - dot_u_u) * v.y
-               + 2.0f * s * cross.y;
+    result.x = v.x + (s * t.x) + tmp.x;
+    result.y = v.y + (s * t.y) + tmp.y;
+    result.z = v.z + (s * t.z) + tmp.z;
 
-    result.z = 2.0f * dot_u_v * u.z
-               + (s * s - dot_u_u) * v.z
-               + 2.0f * s * cross.z;
-
-    return result;
+    return result;*/
 }
 
 inline void

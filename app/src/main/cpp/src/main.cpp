@@ -143,7 +143,7 @@ android_main(struct android_app* android_app)
                                     sVector3{0.0f});
 
     scene_add_collider(curr_scene,
-                       sVector3{-0.50f, 0.f, 0.f},
+                       sVector3{-1.0f, 0.f, 0.f},
                        sVector3{0.5f, 0.5f, 0.5f},
                        sQuaternion4{1.0f,0.0f,0.0f, 0.0f});
 

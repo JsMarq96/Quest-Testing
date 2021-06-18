@@ -37,15 +37,28 @@ void CC_update(sColliderController    *col_contr,
                                       col_contr->entangled_position_delta[i].z,
                                       1.0f };
 
-        col_contr->collider_origin_points[i] = sVector3{ obj_positions[obj_index].x + new_pos.x,
-                                                         obj_positions[obj_index].y + new_pos.y,
-                                                         obj_positions[obj_index].z + new_pos.z };
+        sVector3 tmp = sVector3{obj_positions[obj_index].x + new_pos.x,
+                                               obj_positions[obj_index].y + new_pos.y,
+                                               obj_positions[obj_index].z + new_pos.z };
+
+        col_contr->origin_points[i] = tmp;
 
         col_contr->box_collider_rotations[i] = obj_rotations[obj_index];
 
-        // TODO: Box collider rotation, this works for sphere and AABB
-        // NOTE: is the AABB is bounded it should rotate with the min max of the objetcs's
-        //       mesh... Lets see if we can get away without doing that
+        get_OBB_raw_vertex(col_contr->origin_points[i],
+                           col_contr->box_collider_sizes[i],
+                           col_contr->box_collider_rotations[i],
+                           col_contr->collider_raw_vertex[i]);
+
+        if (obj_rotations[obj_index].x  != col_contr->box_collider_rotations[i].x &&
+                obj_rotations[obj_index].y != col_contr->box_collider_rotations[i].y &&
+                obj_rotations[obj_index].z != col_contr->box_collider_rotations[i].z &&
+                obj_rotations[obj_index].w != col_contr->box_collider_rotations[i].w &&
+                obj_positions[obj_index].x != tmp.x &&
+                obj_positions[obj_index].y != tmp.y &&
+                obj_positions[obj_index].z != tmp.z) {
+
+        }
     }
 
     // Detect collisions
@@ -56,13 +69,10 @@ void CC_update(sColliderController    *col_contr,
             int index_1 = enabled_collider_indexing[i];
             int index_2 = enabled_collider_indexing[j];
 
-            bool collision_detected = false;
-
-
-            if (SAT_OBB_v_OBB(col_contr->collider_origin_points[index_1],
+            if (SAT_OBB_v_OBB(col_contr->origin_points[index_1],
                               col_contr->box_collider_sizes[index_1],
                               col_contr->box_collider_rotations[index_1],
-                              col_contr->collider_origin_points[index_2],
+                              col_contr->origin_points[index_2],
                               col_contr->box_collider_sizes[index_2],
                               col_contr->box_collider_rotations[index_2])) {
 
@@ -94,7 +104,7 @@ void CC_render(const sColliderController *col_contr,
 
             model.rotate(&col_contr->box_collider_rotations[i]);
 
-            model.set_position(col_contr->collider_origin_points[i]);
+            model.set_position(col_contr->origin_points[i]);
 
             render_mesh(&col_contr->debug_renderer,
                         &model,
@@ -126,7 +136,7 @@ int CC_add_AABB_collider(sColliderController *controller,
 
     controller->enabled_colliders[index] = true;
     controller->collider_type[index] = AABB_COLLIDER;
-    controller->collider_origin_points[index] = position;
+    controller->origin_points[index] = position;
     controller->box_collider_sizes[index] = sVector3{width, heigth, depth};
 
     return index;
@@ -149,7 +159,7 @@ int CC_add_sphere_collider(sColliderController *controller,
 
     controller->enabled_colliders[index] = true;
     controller->collider_type[index] = SPHERE_COLLIDER;
-    controller->collider_origin_points[index] = position;
+    controller->origin_points[index] = position;
     controller->sphere_collider_radius[index] = radius;
 
     return index;
@@ -175,7 +185,7 @@ int CC_add_OBB_collider(sColliderController *controller,
 
     controller->enabled_colliders[index] = true;
     controller->collider_type[index] = OBB_COLLIDER;
-    controller->collider_origin_points[index] = position;
+    controller->origin_points[index] = position;
     controller->box_collider_sizes[index] = sVector3{width, heigth, depth};
     controller->box_collider_rotations[index] = rotation;
 

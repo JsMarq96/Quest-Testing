@@ -140,9 +140,14 @@ void scene_update(sScene *scene,
               &collision_count);
 
     if (collision_count > 0) {
-        scene->obj_highlight_color[collision_result[0].collider1_index] = sVector3{0.5f, 0.f, 0.f};
-        scene->obj_highlight_color[collision_result[0].collider2_index] = sVector3{0.5f, 0.f, 0.f};
+        scene->obj_highlight_color[0] = sVector3{0.5f, 0.f, 0.f};
+        scene->obj_highlight_color[0] = sVector3{0.5f, 0.f, 0.f};
+    } else {
+        scene->obj_highlight_color[0] = sVector3{1.f, 1.f, 1.f};
+        scene->obj_highlight_color[0] = sVector3{1.f, 1.f, 1.f};
     }
+
+    info("COLLISION COUNT: %d", collision_count);
 
     scene->scene_update(scene, input, elapsed_time);
 }

@@ -46,10 +46,11 @@ struct sColliderController {
 
     bool           is_trigger              [MAX_SCENE_COLLIDERS] = { false };
     eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { AABB_COLLIDER };
-    sVector3       collider_origin_points  [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
+    sVector3       origin_points           [MAX_SCENE_COLLIDERS] = {sVector3{0.0f, 0.f, 0.0f} };
     sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sQuaternion4   box_collider_rotations  [MAX_SCENE_COLLIDERS] = { sQuaternion4{0.0f, 0.0f, 0.0f, 0.0f} };
     float          sphere_collider_radius  [MAX_SCENE_COLLIDERS] = { 0.0f };
+    sVector3       collider_raw_vertex     [MAX_SCENE_COLLIDERS][15] = { 0.0f};
 
     char           collider_tag[TAG_SIZE]  [MAX_SCENE_COLLIDERS] = {""};
 
@@ -92,7 +93,7 @@ int CC_add_OBB_collider(sColliderController *controller,
 
 inline sVector3 CC_get_collider_center(const sColliderController  *controller,
                                        const int                   index_id) {
-    sVector3 col_origin = controller->collider_origin_points[index_id];
+    sVector3 col_origin = controller->origin_points[index_id];
     sVector3 box_sizes{}, tmp{}, sizes{};
     switch(controller->collider_type[index_id]) {
         case SPHERE_COLLIDER:

@@ -7,24 +7,28 @@
 
 #include <float.h>
 
-#include "collision_controller.h"
-#include "../utils/math.h"
+#include "math.h"
+
+#include <iostream>
 
 inline void get_OBB_raw_vertex(const sVector3 obb_center,
                                const sVector3 obb_size,
                                const sQuaternion4 obb_rotation,
-                               sVector3* result) {
-    result[0] = obb_center;
-    result[1] = {obb_center.x + obb_size.x, obb_center.y, obb_center.z};
-    result[2] = {obb_center.x, obb_center.y  + obb_size.y, obb_center.z};
-    result[3] = {obb_center.x + obb_size.x, obb_center.y  + obb_size.x, obb_center.z};
-    result[4] = {obb_center.x, obb_center.y, obb_center.z + obb_size.z};
-    result[5] = {obb_center.x, obb_center.y + obb_size.y, obb_center.z + obb_size.z};
-    result[6] = {obb_center.x + obb_size.x, obb_center.y, obb_center.z + obb_size.z};
-    result[7] = {obb_center.x + obb_size.x, obb_center.y + obb_size.y, obb_center.z + obb_size.z};
+                               sVector3 *result) {
+    result[0] = sVector3{};
+    result[1] = {obb_size.x, 0.0f, 0.0f};
+    result[2] = {0.0f, obb_size.y, 0.0f};
+    result[3] = {obb_size.x, obb_size.x, 0.0f};
+    result[4] = {0.0f, 0.0f, obb_size.z};
+    result[5] = {0.0f, obb_size.y, obb_size.z};
+    result[6] = {obb_size.x, 0.0f, obb_size.z};
+    result[7] = {obb_size.x, obb_size.y, obb_size.z};
 
     for(int i = 0; i < 8; i++) {
         result[i] = rotate_vector3(result[i], obb_rotation);
+        result[i] = { result[i].x + obb_center.x,
+                      result[i].y + obb_center.y,
+                      result[i].z + obb_center.z };
     }
 }
 
@@ -52,58 +56,9 @@ inline bool intersect_vertex_group_on_axis(const sVector3 obb1[8],
     }
 
     float total_span = MAX(max_1, max_2) - MIN(min_1, min_2);
-    float sum = max_1 - min_1 + max_1 - max_2;
+    float sum = max_1 - min_1 + max_2 - min_2;
 
-    return total_span <= sum;
-}
-
-inline void get_SAT_normals_from_raw_vertex_lists(const sVector3 obb1_origin,
-                                                  const sQuaternion4 rotation1,
-                                                  const sVector3 obb2_origin,
-                                                  const sQuaternion4 rotation2,
-                                                  sVector3 *result_normals) {
-
-    result_normals[0] = sVector3{1.0f, 0.0f, 0.0f};
-    result_normals[1] = sVector3{0.0f, 1.0f, 0.0f};
-    result_normals[2] = sVector3{0.0f, 0.0f, 1.0f};
-    result_normals[3] = sVector3{1.0f, 0.0f, 0.0f};
-    result_normals[4] = sVector3{0.0f, 1.0f, 0.0f};
-    result_normals[5] = sVector3{0.0f, 0.0f, 1.0f};
-    result_normals[0] = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, rotation1);
-    result_normals[1] = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, rotation1);
-    result_normals[2] = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, rotation1);
-    result_normals[3] = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, rotation2);
-    result_normals[4] = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, rotation2);
-    result_normals[5] = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, rotation2);
-
-    /*result_normals[0] = sVector3{result_normals[0].x + obb1_origin.x,
-                                 result_normals[0].y + obb1_origin.y,
-                                 result_normals[0].z + obb1_origin.z};
-    result_normals[1] = sVector3{result_normals[1].x + obb1_origin.x,
-                                 result_normals[1].y + obb1_origin.y,
-                                 result_normals[1].z + obb1_origin.z};
-    result_normals[2] = sVector3{result_normals[2].x + obb1_origin.x,
-                                 result_normals[2].y + obb1_origin.y,
-                                 result_normals[2].z + obb1_origin.z};
-    result_normals[3] = sVector3{result_normals[3].x + obb2_origin.x,
-                                 result_normals[3].y + obb2_origin.y,
-                                 result_normals[3].z + obb2_origin.z};
-    result_normals[4] = sVector3{result_normals[4].x + obb2_origin.x,
-                                 result_normals[4].y + obb2_origin.y,
-                                 result_normals[4].z + obb2_origin.z};
-    result_normals[5] = sVector3{result_normals[5].x + obb2_origin.x,
-                                 result_normals[5].y + obb2_origin.y,
-                                 result_normals[5].z + obb2_origin.z};*/
-
-    result_normals[6]  = cross_prod(result_normals[0],result_normals[3]);
-    result_normals[7]  = cross_prod(result_normals[0],result_normals[4]);
-    result_normals[8]  = cross_prod(result_normals[0],result_normals[5]);
-    result_normals[9]  = cross_prod(result_normals[1],result_normals[3]);
-    result_normals[10] = cross_prod(result_normals[1],result_normals[4]);
-    result_normals[11] = cross_prod(result_normals[1],result_normals[5]);
-    result_normals[12] = cross_prod(result_normals[2],result_normals[3]);
-    result_normals[13] = cross_prod(result_normals[2],result_normals[4]);
-    result_normals[14] = cross_prod(result_normals[2],result_normals[5]);
+    return sum >= total_span;
 }
 
 
@@ -126,18 +81,93 @@ inline bool SAT_OBB_v_OBB(const sVector3 obb1_origin,
                        obb2_rotation,
                        &obb2_vertex[0]);
 
-    get_SAT_normals_from_raw_vertex_lists(obb1_origin,
-                                          obb1_rotation,
-                                          obb2_origin,
-                                          obb2_rotation,
-                                          &normal_list[0]);
+    sVector3 norm1_x = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, obb1_rotation);
+    sVector3 norm1_y = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, obb1_rotation);
+    sVector3 norm1_z = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, obb1_rotation);
+    sVector3 norm2_x = rotate_vector3(sVector3{1.0f, 0.0f, 0.0f}, obb2_rotation);
+    sVector3 norm2_y = rotate_vector3(sVector3{0.0f, 1.0f, 0.0f}, obb2_rotation);
+    sVector3 norm2_z = rotate_vector3(sVector3{0.0f, 0.0f, 1.0f}, obb2_rotation);
 
-    for (int i = 0; i < 15; i++) {
-        if(!intersect_vertex_group_on_axis(obb1_vertex,
-                                           obb2_vertex,
-                                           normal_list[i])) {
-            return false;
-        }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm1_x)) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm1_y)) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm1_z)) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm2_x)) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm2_y)) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       norm2_z)) {
+        return false;
+    }
+
+
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_x, norm2_x))) {
+                                           std::cout << "6" << std::endl;
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_x, norm2_y))) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_x, norm2_z))) {
+        return false;
+    }
+
+
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_y, norm2_x))) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_y, norm2_y))) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_y, norm2_z))) {
+        return false;
+    }
+
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_z, norm2_x))) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_z, norm2_y))) {
+        return false;
+    }
+    if(!intersect_vertex_group_on_axis(obb1_vertex,
+                                       obb2_vertex,
+                                       cross_prod(norm1_z, norm2_z))) {
+        return false;
     }
 
     return true;
