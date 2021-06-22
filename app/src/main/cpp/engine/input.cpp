@@ -66,6 +66,8 @@ void INPUT_get_controller_states(sControllerInput   *controler_state,
                                     controller_tracking.HeadPose.Pose.Orientation.y,
                                     controller_tracking.HeadPose.Pose.Orientation.z};
 
+                            controler_state->controller_rotations[controller_index] = controler_state->controller_rotations[controller_index].normalize();
+
                             controler_state->joysticks[controller_index] = sVector2{ovr_controller_state.Joystick.x, ovr_controller_state.Joystick.y};
                         }
                     }

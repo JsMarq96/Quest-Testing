@@ -9,9 +9,10 @@
 #include "../utils/math.h"
 
 #include "../utils/math.h"
+
+#include "collision_types.h"
 #include "mesh_renderer.h"
 #include "SAT_collision_testing.h"
-
 
 #define MAX_SCENE_COLLIDERS 100
 #define TAG_SIZE 4
@@ -26,16 +27,6 @@ enum eColliderType : int {
     AABB_COLLIDER = 0,
     SPHERE_COLLIDER,
     OBB_COLLIDER
-};
-
-
-struct sCollisionManifold {
-    int collider1_index            = -1;
-    int collider2_index            = -1;
-
-    sVector3  collision_normals [3] = {};
-    sVector3  contact_points    [3] = {};
-    float     depth             [3] = {0.0f};
 };
 
 #define DEBUG TRUE

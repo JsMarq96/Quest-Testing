@@ -1,8 +1,8 @@
 //
 // Created by jsmar on 07/06/2021.
 //
-
 #include "collision_controller.h"
+
 
 //// LIFECYCLE FUNCTIONS
 
@@ -69,18 +69,20 @@ void CC_update(sColliderController    *col_contr,
             int index_1 = enabled_collider_indexing[i];
             int index_2 = enabled_collider_indexing[j];
 
+            sCollisionManifold manifold;
+
             if (SAT_OBB_v_OBB(col_contr->origin_points[index_1],
                               col_contr->box_collider_sizes[index_1],
                               col_contr->box_collider_rotations[index_1],
                               col_contr->origin_points[index_2],
                               col_contr->box_collider_sizes[index_2],
-                              col_contr->box_collider_rotations[index_2])) {
+                              col_contr->box_collider_rotations[index_2],
+                              &result_collisions[collision_index])) {
 
-                info("COLLISION BEIBIIII %d %d", index_1, index_2);
+                info("COLLISION BEIBIIII %d %d %d", index_1, index_2, result_collisions[collision_index].contact_point_count);
                 // Generate the collision manifold
                 result_collisions[collision_index].collider1_index = index_1;
                 result_collisions[collision_index].collider2_index = index_2;
-
 
                 collision_index++;
             }

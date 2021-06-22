@@ -39,6 +39,11 @@ union sQuaternion4 {
         float norm = w*w + x*x + y*y + z*z;
         return sQuaternion4{w / norm, -x / norm, -y / norm, -z / norm};
     }
+
+    inline sQuaternion4 normalize() {
+        float norm = w*w + x*x + y*y + z*z;
+        return sQuaternion4{w / norm, x / norm, y / norm, z / norm};
+    }
 };
 
 union sVector2 {
