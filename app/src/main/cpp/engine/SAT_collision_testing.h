@@ -272,16 +272,18 @@ inline bool SAT_OBB_v_OBB(const sVector3 obb1_origin,
 
     refence_plane.normal = col_normal;
 
+    // Skip clipping for OBBs... Lets see how it goes
+
     for(int i = 0; i < 4; i++) {
         float dist = refence_plane.distance(indent_face[i]);
-        //std::cout << "Dist " << dist << std::endl;
         if (dist <= 0.0f) {
-            //std::cout << "Col point " <<  indent_face[i].x << " " <<  indent_face[i].y << " " <<  indent_face[i].y << " " << std::endl;
+            result_manifold->points_depth[index] = dist;
             result_manifold->contact_points[index++] = indent_face[i];
         }
     }
 
     result_manifold->contact_point_count = index;
+    result_manifold->collision_normal = col_normal;
 
     return true;
 }

@@ -18,6 +18,8 @@ void test_scene_start(sScene   *curr_scene) {
 
 void test_scene_update(sScene                  *curr_scene,
                        const sControllerInput  *input,
+                       const sCollisionManifold *manifolds,
+                       const int                manifold_count,
                        const double             frame_delta) {
     int left_hand_id = scene_fetch_object_id(curr_scene, "left_hand");
     int right_hand_id = scene_fetch_object_id(curr_scene, "right_hand");
@@ -30,6 +32,27 @@ void test_scene_update(sScene                  *curr_scene,
     curr_scene->rotation[left_hand_id] = input->controller_rotations[LEFT_CONTROLLER];
     curr_scene->rotation[ship_2_id] = input->controller_rotations[LEFT_CONTROLLER];
     curr_scene->rotation[ship_1_id] = input->controller_rotations[RIGHT_CONTROLLER];
+
+    sVector3 collider_pos = curr_scene->collision_controller.origin_points[1];
+
+    if (manifold_count > 0) {
+        sVector3 col_normal = manifolds[0].collision_normal;
+        float max_depth = 0.0f;
+
+        for (int i = 0; i < manifolds[0].contact_point_count; i ++) {
+            max_depth = MIN(manifolds[0].points_depth[i], max_depth);
+        }
+
+        col_normal.x *= max_depth * -1.0f * 0.008f;
+        col_normal.y *= max_depth * -1.0f * 0.008f;
+        col_normal.z *= max_depth * -1.0f * 0.008f;
+
+        collider_pos.x += col_normal.x;
+        collider_pos.y += col_normal.y;
+        collider_pos.z += col_normal.z;
+
+        curr_scene->collision_controller.origin_points[1] = collider_pos;
+    }
 
     info("CONTROLLER %f %f %f %f",
          input->controller_rotations[RIGHT_CONTROLLER].x,

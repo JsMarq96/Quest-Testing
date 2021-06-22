@@ -11,8 +11,9 @@ struct sCollisionManifold {
     int collider1_index            = -1;
     int collider2_index            = -1;
 
-    sVector3  collision_normals     = {};
+    sVector3  collision_normal     = {};
     sVector3  contact_points    [4] = {};
+    float     points_depth      [4] = {};
     int       contact_point_count   = 0;
 };
 

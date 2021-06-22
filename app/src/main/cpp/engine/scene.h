@@ -50,7 +50,11 @@ struct sScene {
     sSkyBoxRenderer     skybox_renderer;
 
     /// GAME LOOP FUNCTIONS
-    void (*scene_update)(sScene *curr_scene, const sControllerInput  *input, const double frame_delta) = NULL;
+    void (*scene_update)(sScene                  *curr_scene,
+                         const sControllerInput  *input,
+                         const sCollisionManifold *manifolds,
+                         const int                manifold_count,
+                         const double             frame_delta) = NULL;
 };
 
 /// SCENE LIVECYCLE

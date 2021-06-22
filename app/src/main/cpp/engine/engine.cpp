@@ -56,13 +56,13 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                                   "left_hand",
                                   l_hand_obj,
                                   l_hand_mat,
-                                  sVector3{0.0f, 0.0f, 0.0f});
+                                  sVector3{1.0f, 1.0f, 1.0f});
 
     int r_hand = scene_add_object(new_scene,
                                   "right_hand",
                                   r_hand_obj,
                                   r_hand_mat,
-                                  sVector3{0.0f, 0.0f, 0.0f});
+                                  sVector3{1.0f, 1.0f, 1.0f});
 
 
     char *scene_plan = NULL;

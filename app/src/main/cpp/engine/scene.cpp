@@ -30,6 +30,7 @@ int scene_resource_add_mesh(sScene       *scene,
                    texture,
                    &mesh_dir);
     return BMR_add_mesh(&scene->mesh_renderer, mesh_dir, is_static);
+    return BMR_add_mesh(&scene->mesh_renderer, mesh_dir, is_static);
 }
 
 int scene_resource_add_material(sScene         *scene,
@@ -149,7 +150,7 @@ void scene_update(sScene *scene,
 
     info("COLLISION COUNT: %d", collision_count);
 
-    scene->scene_update(scene, input, elapsed_time);
+    scene->scene_update(scene, input, collision_result, collision_count, elapsed_time);
 }
 
 void scene_render(const sScene           *scene,
