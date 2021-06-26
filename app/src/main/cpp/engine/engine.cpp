@@ -79,6 +79,8 @@ void ENGINE_add_scene(sEngineInstance   *engine,
     char *line_buffer = NULL;
     size_t len = 0;
 
+    sVector3 mesh_bounding_volumes[MAX_INSTANCE_SIZE] = {};
+
     // Scene data
     // TODO: add Material not only textures
     while ((readed_chars = getline(&line_buffer, &len, plan_file)) != -1) {
@@ -121,7 +123,9 @@ void ENGINE_add_scene(sEngineInstance   *engine,
     memset(name, '\0', 10 * sizeof(char));
     while ((readed_chars = getline(&line_buffer, &len, plan_file)) != -1) {
         char buffer[50];
-        float x, y, z;
+        float w, x, y, z;
+        sVector3 bounding_volume{};
+        sVector3 bounding_volume_pos{};
 
         memset(buffer, '\0', 50 * sizeof(char));
 
@@ -133,10 +137,20 @@ void ENGINE_add_scene(sEngineInstance   *engine,
             position.y = y;
             position.z = z;
         } else if (line_buffer[0] == 'R') { // Get Rotation
-            sscanf(line_buffer, "ROTATION %f %f %f\n", &x, &y, &z);
+            sscanf(line_buffer, "ROTATION %f %f %f %f\n", &w, &x, &y, &z);
+            rotation.w = w;
             rotation.x = x;
             rotation.y = y;
             rotation.z = z;
+        } else if (line_buffer[0] == 'B') {
+            sscanf(line_buffer,
+                   "BOUNDING-VOLUME %f %f %f %f %f %f\n",
+                   &bounding_volume.x,
+                   &bounding_volume.y,
+                   &bounding_volume.z,
+                   &bounding_volume_pos.x,
+                   &bounding_volume_pos.y,
+                   &bounding_volume_pos.z);
         } else if (line_buffer[0] == 'M') { // Get mesh and material
             sscanf(line_buffer, "MESH-MATERIAL %d %d\n", &mesh_index, &material_index);
             mesh_index += STARTUP_MESH_COUNT;
@@ -146,7 +160,9 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                              name,
                              mesh_index,
                              material_index,
-                             position);
+                             position,
+                             bounding_volume,
+                             bounding_volume_pos);
         }
 
     }

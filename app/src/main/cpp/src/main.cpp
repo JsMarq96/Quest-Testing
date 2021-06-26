@@ -151,6 +151,8 @@ android_main(struct android_app* android_app)
 
     ovrMobile *ovr = NULL;
 
+    double time = get_time();
+
     while(!android_app->destroyRequested) {
         ANativeActivity *activity = android_app->activity;
 
@@ -208,11 +210,18 @@ android_main(struct android_app* android_app)
                                     ovr,
                                     display_time);
 
-        scene_update(curr_scene, &cont_input, display_time);
+        double new_time = get_time();
+
+        scene_update(curr_scene,
+                     &cont_input,
+                     display_time,
+                     new_time - time); // time delta
 
         render_frame(&frame_renderer,
                      curr_scene,
                      &tracking);
+
+        time = new_time;
 
         /// FRAME GENRATION END
 

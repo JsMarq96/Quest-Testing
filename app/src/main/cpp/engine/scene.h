@@ -18,6 +18,7 @@
 #include "skybox_renderer.h"
 #include "collision_controller.h"
 #include "input.h"
+#include "physics_controller.h"
 
 #define MAX_INSTANCE_SIZE 100
 
@@ -43,6 +44,7 @@ struct sScene {
     sKVStorage      material_index_storage;
 
     /// GAMELOOP COMPONENTS
+    sPhysicsController   physics_controller;
     sColliderController  collision_controller;
 
     /// RENDER COMPONENTS
@@ -64,6 +66,7 @@ void scene_destroy(sScene  *to_destroy);
 
 void scene_update(sScene *scene,
                   const sControllerInput  *input,
+                  const double display_time,
                   const double elapsed_time);
 
 void scene_render(const sScene           *scene,
@@ -91,6 +94,21 @@ int scene_add_object(sScene          *scene,
                      const int       mesh_id,
                      const int       material_id,
                      const sVector3  position);
+
+int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
+                     const int       mesh_id,
+                     const int       material_id,
+                     const sVector3  position,
+                     const sVector3  bounding_box_size);
+
+int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
+                     const int       mesh_id,
+                     const int       material_id,
+                     const sVector3  position,
+                     const sVector3  bounding_box_size,
+                     const sVector3  bounding_box_pos);
 
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,

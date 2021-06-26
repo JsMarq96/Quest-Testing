@@ -12,6 +12,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "../utils/math.h"
+
 struct sGlVertex {
     float x  = 0.0f;
     float y  = 0.0f;
@@ -43,4 +45,8 @@ load_cube_mesh(sMesh *result);
 
 void
 mesh_destroy(sMesh *to_dispose);
+
+sVector3
+get_bounding_box_dimensions(const sMesh *mesh,
+                            const sVector3 scale);
 #endif //QUEST_DEMO_MESH_H

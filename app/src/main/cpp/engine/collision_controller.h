@@ -24,28 +24,36 @@
  * */
 
 enum eColliderType : int {
-    AABB_COLLIDER = 0,
-    SPHERE_COLLIDER,
+    SPHERE_COLLIDER = 0,
     OBB_COLLIDER
+};
+
+enum eColliderAttributes : unsigned char {
+    IS_TRIGGER = 0b00001,
+    IS_STATIC  = 0b00010
 };
 
 #define DEBUG TRUE
 
 struct sColliderController {
-    bool      enabled_colliders            [MAX_SCENE_COLLIDERS] = { false };
-    int       collider_object_entanglement [MAX_SCENE_COLLIDERS] = { -1 };
+    /// COLLIDER BEHAVIOUR
+    bool           enabled_colliders       [MAX_SCENE_COLLIDERS] = { false };
+    int            object_entanglement     [MAX_SCENE_COLLIDERS] = { -1 };
+    unsigned char  attributes              [MAX_SCENE_COLLIDERS] = { 0b000 };
+    eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { OBB_COLLIDER };
 
-    bool           is_trigger              [MAX_SCENE_COLLIDERS] = { false };
-    eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { AABB_COLLIDER };
-    sVector3       origin_points           [MAX_SCENE_COLLIDERS] = {sVector3{0.0f, 0.f, 0.0f} };
+    /// COLLIDER POSITION, SIZE & SHAPE
+    sVector3       entangled_position      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
+    sVector3       origin_points           [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sQuaternion4   box_collider_rotations  [MAX_SCENE_COLLIDERS] = { sQuaternion4{0.0f, 0.0f, 0.0f, 0.0f} };
     float          sphere_collider_radius  [MAX_SCENE_COLLIDERS] = { 0.0f };
-    sVector3       collider_raw_vertex     [MAX_SCENE_COLLIDERS][15] = { 0.0f};
+    sVector3       collider_raw_vertex     [MAX_SCENE_COLLIDERS][15] = { 0.0f };
 
+    /// MISC COLLIDER INFO
     char           collider_tag[TAG_SIZE]  [MAX_SCENE_COLLIDERS] = {""};
 
-    sVector3  entangled_position_delta     [MAX_SCENE_COLLIDERS] = {sVector3{0.0f, 0.f, 0.0f}};
+
 
     // TODO: Add labels for the collisions
     // TODO: Add triggers for collisions
@@ -89,11 +97,6 @@ inline sVector3 CC_get_collider_center(const sColliderController  *controller,
     switch(controller->collider_type[index_id]) {
         case SPHERE_COLLIDER:
             return col_origin;
-        case AABB_COLLIDER:
-            sizes = controller->box_collider_sizes[index_id];
-            return sVector3{ col_origin.x + (sizes.x / 2.0f),
-                             col_origin.y + (sizes.y / 2.0f),
-                             col_origin.z + (sizes.z / 2.0f)};
         case OBB_COLLIDER:
             box_sizes = controller->box_collider_sizes[index_id];
             tmp =  sVector3{ col_origin.x + (sizes.x / 2.0f),

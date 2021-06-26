@@ -184,3 +184,21 @@ mesh_destroy(sMesh *to_dispose) {
     free(to_dispose->raw_vertex_list);
     free(to_dispose->faces_index);
 };
+
+sVector3
+get_bounding_box_dimensions(const sMesh *mesh,
+                            const sVector3 scale) {
+    sVector3 max_shape{};
+
+    for(int i = 0; i < mesh->vertex_count; i++) {
+        max_shape.x = MAX(mesh->vertex_list[i].x, max_shape.x);
+        max_shape.y = MAX(mesh->vertex_list[i].y, max_shape.y);
+        max_shape.z = MAX(mesh->vertex_list[i].z, max_shape.z);
+    }
+
+    max_shape.x *= scale.x;
+    max_shape.y *= scale.y;
+    max_shape.z *= scale.z;
+
+    return max_shape;
+}

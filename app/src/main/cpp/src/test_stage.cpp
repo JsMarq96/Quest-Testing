@@ -13,7 +13,6 @@ void test_scene_start(sScene   *curr_scene) {
                        sVector3{},
                        sVector3{0.05f, 0.05f, 0.05f},
                        sQuaternion4{});
-
 }
 
 void test_scene_update(sScene                  *curr_scene,
@@ -30,10 +29,10 @@ void test_scene_update(sScene                  *curr_scene,
     curr_scene->position[left_hand_id] = input->controller_positions[LEFT_CONTROLLER];
     curr_scene->rotation[right_hand_id] = input->controller_rotations[RIGHT_CONTROLLER];
     curr_scene->rotation[left_hand_id] = input->controller_rotations[LEFT_CONTROLLER];
-    curr_scene->rotation[ship_2_id] = input->controller_rotations[LEFT_CONTROLLER];
-    curr_scene->rotation[ship_1_id] = input->controller_rotations[RIGHT_CONTROLLER];
+    /*curr_scene->rotation[ship_2_id] = input->controller_rotations[LEFT_CONTROLLER];
+    curr_scene->rotation[ship_1_id] = input->controller_rotations[RIGHT_CONTROLLER];*/
 
-    sVector3 collider_pos = curr_scene->collision_controller.origin_points[1];
+    sVector3 collider_pos = curr_scene->collision_controller.origin_points[manifolds[0].collider2_index];
 
     if (manifold_count > 0) {
         sVector3 col_normal = manifolds[0].collision_normal;
@@ -43,20 +42,14 @@ void test_scene_update(sScene                  *curr_scene,
             max_depth = MIN(manifolds[0].points_depth[i], max_depth);
         }
 
-        col_normal.x *= max_depth * -1.0f * 0.008f;
-        col_normal.y *= max_depth * -1.0f * 0.008f;
-        col_normal.z *= max_depth * -1.0f * 0.008f;
+        col_normal.x *= max_depth * -1.0f * frame_delta;
+        col_normal.y *= max_depth * -1.0f * frame_delta;
+        col_normal.z *= max_depth * -1.0f * frame_delta;
 
         collider_pos.x += col_normal.x;
         collider_pos.y += col_normal.y;
         collider_pos.z += col_normal.z;
 
-        curr_scene->collision_controller.origin_points[1] = collider_pos;
+        curr_scene->collision_controller.origin_points[manifolds[0].collider2_index] = collider_pos;
     }
-
-    info("CONTROLLER %f %f %f %f",
-         input->controller_rotations[RIGHT_CONTROLLER].x,
-         input->controller_rotations[RIGHT_CONTROLLER].y,
-         input->controller_rotations[RIGHT_CONTROLLER].z,
-         input->controller_rotations[RIGHT_CONTROLLER].w);
 }
