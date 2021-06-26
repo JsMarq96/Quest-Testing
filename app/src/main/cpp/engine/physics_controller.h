@@ -10,7 +10,7 @@
 #include "../utils/math.h"
 
 #define MAX_INSTANCE_SIZE 100
-#define GRAVITY_CONSTANT 9.81f
+#define GRAVITY_CONSTANT 0.981f
 
 enum ePhysicsAttributes : unsigned char {
     IS_UNMOVABLE       = 0b0001,

@@ -14,24 +14,19 @@
 #include "collision_controller.h"
 
 
-inline void get_OBB_raw_vertex(const sVector3 obb_center,
-                               const sVector3 obb_size,
-                               const sQuaternion4 obb_rotation,
+inline void get_OBB_raw_vertex(const sMat44 transform,
                                sVector3 *result) {
     result[0] = sVector3{};
-    result[1] = {obb_size.x, 0.0f, 0.0f};
-    result[2] = {0.0f, obb_size.y, 0.0f};
-    result[3] = {obb_size.x, obb_size.y, 0.0f};
-    result[4] = {0.0f, 0.0f, obb_size.z};
-    result[5] = {0.0f, obb_size.y, obb_size.z};
-    result[6] = {obb_size.x, 0.0f, obb_size.z};
-    result[7] = {obb_size.x, obb_size.y, obb_size.z};
+    result[1] = {1.0f, 0.0f, 0.0f};
+    result[2] = {0.0f, 1.0f, 0.0f};
+    result[3] = {1.0f, 1.0f, 0.0f};
+    result[4] = {0.0f, 0.0f, 1.0f};
+    result[5] = {0.0f, 1.0f, 1.0f};
+    result[6] = {1.0f, 0.0f, 1.0f};
+    result[7] = {1.0f, 1.0f, 1.0f};
 
     for(int i = 0; i < 8; i++) {
-        result[i] = rotate_vector3(result[i], obb_rotation);
-        result[i] = { result[i].x + obb_center.x,
-                      result[i].y + obb_center.y,
-                      result[i].z + obb_center.z };
+        result[i] = transform.multiply(result[i]);
     }
 }
 
@@ -111,11 +106,9 @@ inline bool intersect_vertex_group_on_axis(const sVector3 obb1[8],
 }
 
 
-inline bool SAT_OBB_v_OBB(const sVector3 obb1_origin,
-                          const sVector3 obb1_sizes,
+inline bool SAT_OBB_v_OBB(const sMat44 obb1_transform,
                           const sQuaternion4 obb1_rotation,
-                          const sVector3 obb2_origin,
-                          const sVector3 obb2_sizes,
+                          const sMat44 obb2_transform,
                           const sQuaternion4 obb2_rotation,
                           sCollisionManifold  *result_manifold) {
     int OBB_faces_indexing[6][4] = {
@@ -131,13 +124,9 @@ inline bool SAT_OBB_v_OBB(const sVector3 obb1_origin,
 
     sVector3 col_normal{};
 
-    get_OBB_raw_vertex(obb1_origin,
-                       obb1_sizes,
-                       obb1_rotation,
+    get_OBB_raw_vertex(obb1_transform,
                        &obb1_vertex[0]);
-    get_OBB_raw_vertex(obb2_origin,
-                       obb2_sizes,
-                       obb2_rotation,
+    get_OBB_raw_vertex(obb2_transform,
                        &obb2_vertex[0]);
 
     sVector3 norms_1[] = {

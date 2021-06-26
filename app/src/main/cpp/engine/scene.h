@@ -74,7 +74,7 @@ void scene_render(const sScene           *scene,
                   const unsigned int     eye_index);
 
 
-
+/// SCENE RESOURCE FUNCTIONS
 int scene_resource_add_mesh(sScene       *scene,
                             const char*  texture,
                             const bool   is_static);
@@ -89,36 +89,16 @@ int scene_resource_add_material(sScene         *scene,
 void scene_set_skybox(sScene      *scene,
                       const char  *skyboy_dir);
 
-int scene_add_object(sScene          *scene,
-                     const char      *obj_tag,
-                     const int       mesh_id,
-                     const int       material_id,
-                     const sVector3  position);
-
-int scene_add_object(sScene          *scene,
-                     const char      *obj_tag,
-                     const int       mesh_id,
-                     const int       material_id,
-                     const sVector3  position,
-                     const sVector3  bounding_box_size);
-
-int scene_add_object(sScene          *scene,
-                     const char      *obj_tag,
-                     const int       mesh_id,
-                     const int       material_id,
-                     const sVector3  position,
-                     const sVector3  bounding_box_size,
-                     const sVector3  bounding_box_pos);
-
-int scene_add_object(sScene          *scene,
-                     const char      *obj_tag,
-                     const int       mesh_id,
-                     const int       material_id,
-                     const sVector3  position,
-                     const sVector3  bounding_box_size,
-                     const sVector3  bounding_box_pos,
-                     const bool      is_static,
-                     const float     mass);
+int scene_add_object(sScene              *scene,
+                     const char          *obj_tag,
+                     const int           mesh_id,
+                     const int           material_id,
+                     const sVector3      position,
+                     const sQuaternion4  rotation,
+                     const sVector3      bounding_box_size,
+                     const sVector3      bounding_box_pos,
+                     const bool          is_static,
+                     const float         mass);
 
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,

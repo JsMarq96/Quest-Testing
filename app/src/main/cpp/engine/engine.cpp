@@ -52,17 +52,27 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                                                  basic_vertex_shader,
                                                  basic_frag_shader);
 
-    int l_hand = scene_add_object(new_scene,
-                                  "left_hand",
-                                  l_hand_obj,
-                                  l_hand_mat,
-                                  sVector3{1.0f, 1.0f, 1.0f});
+    scene_add_object(new_scene,
+                     "left_hand",
+                     l_hand_obj,
+                     l_hand_mat,
+                     sVector3{1.0f, 1.0f, 1.0f},
+                     sQuaternion4{1.0f, 0.0f, 0.0f, 0.0f},
+                     sVector3{0.05f, 0.05f, 0.05f},
+                     sVector3{},
+                     false,
+                     10.f);
 
-    int r_hand = scene_add_object(new_scene,
-                                  "right_hand",
-                                  r_hand_obj,
-                                  r_hand_mat,
-                                  sVector3{1.0f, 1.0f, 1.0f});
+    scene_add_object(new_scene,
+                     "right_hand",
+                     r_hand_obj,
+                     r_hand_mat,
+                     sVector3{1.0f, 1.0f, 1.0f},
+                     sQuaternion4{1.0f, 0.0f, 0.0f, 0.0f},
+                     sVector3{0.05f, 0.05f, 0.05f},
+                     sVector3{},
+                     false,
+                     10.f);
 
 
     char *scene_plan = NULL;
@@ -118,16 +128,16 @@ void ENGINE_add_scene(sEngineInstance   *engine,
     // Data to fill
     sVector3 position{}, size{};
     sQuaternion4 rotation{};
+    sVector3 bounding_volume{};
+    sVector3 bounding_volume_pos{};
+    bool is_static = false;
+    float mass = 0.0f;
     int mesh_index, material_index;
     char name[10];
     memset(name, '\0', 10 * sizeof(char));
     while ((readed_chars = getline(&line_buffer, &len, plan_file)) != -1) {
         char buffer[50];
         float w, x, y, z;
-        sVector3 bounding_volume{};
-        sVector3 bounding_volume_pos{};
-        bool is_static = false;
-        float mass = 0.0f;
 
         memset(buffer, '\0', 50 * sizeof(char));
 
@@ -163,6 +173,7 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                              mesh_index,
                              material_index,
                              position,
+                             rotation,
                              bounding_volume,
                              bounding_volume_pos,
                              is_static,

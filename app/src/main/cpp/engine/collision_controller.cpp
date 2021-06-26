@@ -6,14 +6,19 @@
 
 //// LIFECYCLE FUNCTIONS
 
-void CC_init(sColliderController *col_contr) {
+void CC_init(sColliderController *col_contr,
+             bool                *enabled_objs,
+             sVector3            *obj_positions,
+             sQuaternion4        *obj_rotation) {
     memset(col_contr->object_entanglement, -1, MAX_SCENE_COLLIDERS);
     render_init_cube(&col_contr->debug_renderer, true);
+
+    col_contr->position = obj_positions;
+    col_contr->rotation = obj_rotation;
+    col_contr->enabled = enabled_objs;
 }
 
 void CC_update(sColliderController    *col_contr,
-               const sVector3         *obj_positions,
-               const sQuaternion4     *obj_rotations,
                sCollisionManifold     *result_collisions,
                int                    *collision_count) {
     int enabled_collider_count = 0;
@@ -24,38 +29,25 @@ void CC_update(sColliderController    *col_contr,
         if (!col_contr->enabled_colliders[i]) {
             continue;
         }
-        enabled_collider_indexing[enabled_collider_count++] = i;
-
         if (col_contr->object_entanglement[i] == -1) {
             continue;
         }
 
+        enabled_collider_indexing[enabled_collider_count++] = i;
+
         int obj_index = col_contr->object_entanglement[i];
 
-        sVector3 new_pos = rotate_vector3(col_contr->entangled_position[i], obj_rotations[obj_index]);
+        sMat44 rotate, scale;
+        rotate.rotate(&col_contr->rotation[obj_index]);
+        scale.set_scale(col_contr->scale[obj_index]);
 
-        sVector3 tmp = sVector3{ obj_positions[obj_index].x + new_pos.x,
-                                 obj_positions[obj_index].y + new_pos.y,
-                                 obj_positions[obj_index].z + new_pos.z };
+        rotate.multiply(&scale);
+        rotate.set_position(sVector3{col_contr->origin_points[i].x + col_contr->position[obj_index].x,
+                                     col_contr->origin_points[i].y + col_contr->position[obj_index].y,
+                                     col_contr->origin_points[i].z + col_contr->position[obj_index].z });
 
-        col_contr->origin_points[i] = tmp;
 
-        col_contr->box_collider_rotations[i] = obj_rotations[obj_index];
-
-        /*get_OBB_raw_vertex(col_contr->origin_points[i],
-                           col_contr->box_collider_sizes[i],
-                           col_contr->box_collider_rotations[i],
-                           col_contr->collider_raw_vertex[i]);
-
-        if (obj_rotations[obj_index].x  != col_contr->box_collider_rotations[i].x &&
-                obj_rotations[obj_index].y != col_contr->box_collider_rotations[i].y &&
-                obj_rotations[obj_index].z != col_contr->box_collider_rotations[i].z &&
-                obj_rotations[obj_index].w != col_contr->box_collider_rotations[i].w &&
-                obj_positions[obj_index].x != tmp.x &&
-                obj_positions[obj_index].y != tmp.y &&
-                obj_positions[obj_index].z != tmp.z) {
-
-        }*/
+        col_contr->box_transform[i] = rotate;
     }
 
     // Detect collisions
@@ -66,20 +58,16 @@ void CC_update(sColliderController    *col_contr,
             int index_1 = enabled_collider_indexing[i];
             int index_2 = enabled_collider_indexing[j];
 
-            sCollisionManifold manifold;
-
-            if (SAT_OBB_v_OBB(col_contr->origin_points[index_1],
-                              col_contr->box_collider_sizes[index_1],
-                              col_contr->box_collider_rotations[index_1],
-                              col_contr->origin_points[index_2],
-                              col_contr->box_collider_sizes[index_2],
-                              col_contr->box_collider_rotations[index_2],
+            if (SAT_OBB_v_OBB(col_contr->box_transform[index_1],
+                              col_contr->rotation[index_1],
+                              col_contr->box_transform[index_2],
+                              col_contr->rotation[index_2],
                               &result_collisions[collision_index])) {
 
                 info("COLLISION BEIBIIII %d %d %d", index_1, index_2, result_collisions[collision_index].contact_point_count);
                 // Generate the collision manifold
-                result_collisions[collision_index].collider1_index = index_1;
-                result_collisions[collision_index].collider2_index = index_2;
+                result_collisions[collision_index].obj1_index = index_1;
+                result_collisions[collision_index].obj2_index = index_2;
 
                 collision_index++;
             }
@@ -96,17 +84,8 @@ void CC_render(const sColliderController *col_contr,
 
     for(int i = 0; i < MAX_SCENE_COLLIDERS; i++) {
         if (col_contr->enabled_colliders[i] && (col_contr->collider_type[i] == OBB_COLLIDER)) {
-            sMat44 model;
-            model.set_scale(sVector3{col_contr->box_collider_sizes[i].x,
-                                         col_contr->box_collider_sizes[i].y,
-                                         col_contr->box_collider_sizes[i].z});
-
-            model.rotate(&col_contr->box_collider_rotations[i]);
-
-            model.set_position(col_contr->origin_points[i]);
-
             render_mesh(&col_contr->debug_renderer,
-                        &model,
+                        &col_contr->box_transform[i],
                         tracking,
                         eye_index,
                         true);
@@ -115,28 +94,6 @@ void CC_render(const sColliderController *col_contr,
 }
 
 //// COLLIDER MANAGING FUNCTIONS
-int CC_add_sphere_collider(sColliderController *controller,
-                           const sVector3       position,
-                           const float          radius) {
-    int index = -1;
-    for (int i = 0; i < MAX_SCENE_COLLIDERS; i++) {
-        if (!controller->enabled_colliders[i]) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        return index; // Early stop is there is no more space for colliders
-    }
-
-    controller->enabled_colliders[index] = true;
-    controller->collider_type[index] = SPHERE_COLLIDER;
-    controller->origin_points[index] = position;
-    controller->sphere_collider_radius[index] = radius;
-
-    return index;
-}
 
 int CC_add_OBB_collider(sColliderController *controller,
                         const sVector3       position,
@@ -159,8 +116,15 @@ int CC_add_OBB_collider(sColliderController *controller,
     controller->enabled_colliders[index] = true;
     controller->collider_type[index] = OBB_COLLIDER;
     controller->origin_points[index] = position;
-    controller->box_collider_sizes[index] = sVector3{width, heigth, depth};
-    controller->box_collider_rotations[index] = rotation;
+    controller->scale[index] = sVector3{width, heigth, width};
+
+    sMat44 transform;
+
+    transform.set_position(position);
+    transform.set_scale(controller->scale[index]);
+    transform.rotate(&rotation);
+
+    controller->box_transform[index] = transform;
 
     return index;
 }

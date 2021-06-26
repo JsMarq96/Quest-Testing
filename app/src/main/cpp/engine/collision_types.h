@@ -8,8 +8,8 @@
 #include "../utils/math.h"
 
 struct sCollisionManifold {
-    int collider1_index            = -1;
-    int collider2_index            = -1;
+    int obj1_index            = -1;
+    int obj2_index            = -1;
 
     sVector3  collision_normal     = {};
     sVector3  contact_points    [4] = {};

@@ -61,12 +61,6 @@ union sVector4 {
     float raw_values[4];
 };
 
-struct sRect2 {
-    sVector2    point;
-    float       width     = 1.0f;
-    float       height    = 1.0f;
-};
-
 union sMat33 {
     float raw_values[9];
     struct {
@@ -128,6 +122,12 @@ union sMat44 {
         pz = vec.z;
     }
 
+    inline void add_position(const sVector3 vec) {
+        px += vec.x;
+        py += vec.y;
+        pz += vec.z;
+    }
+
     inline void set_scale(const sVector3 vec) {
         sx1 = vec.x;
         sy2 = vec.y;
@@ -160,18 +160,21 @@ union sMat44 {
 
     inline void
     rotate(const sQuaternion4 *quat) {
-        /*sMat44 tmp_mat_pos;
-        tmp_mat_pos = *this;
-        set_identity();
-        convert_quaternion_to_matrix(quat, this);
-        multiply(&tmp_mat_pos);*/
         sMat44 tmp_mat, tmp_mat2;
         convert_quaternion_to_matrix(quat, &tmp_mat);
         tmp_mat.invert(&tmp_mat2);
         multiply(&tmp_mat2);
     }
 
-    inline sVector4 multiply(const sVector4   vect) {
+    inline void
+    scale(const sVector3 vect) {
+        sMat44 tmp_mat, tmp_mat2;
+        tmp_mat.set_scale(vect);
+        tmp_mat.invert(&tmp_mat2);
+        multiply(&tmp_mat2);
+    }
+
+    inline sVector4 multiply(const sVector4   vect) const {
         sVector4 result {};
         for (int i = 0; i < 4; i++) {
             result.raw_values[i] = (vect.raw_values[0] * mat_values[i][0]) +
@@ -181,6 +184,18 @@ union sMat44 {
         }
 
         return result;
+    }
+
+    inline sVector3 multiply(const sVector3   vect) const{
+        sVector4 result {vect.x, vect.y, vect.z, 1.0f};
+        for (int i = 0; i < 4; i++) {
+            result.raw_values[i] = (vect.raw_values[0] * mat_values[i][0]) +
+                                   (vect.raw_values[1] * mat_values[i][1]) +
+                                   (vect.raw_values[2] * mat_values[i][2]) +
+                                   (vect.raw_values[3] * mat_values[i][3]);
+        }
+
+        return sVector3{result.x, result.y, result.z};
     }
 
     // Yoinked from a stackoverlof that yoinked from the MESA implmentation

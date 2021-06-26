@@ -22,8 +22,8 @@ void test_scene_update(sScene                  *curr_scene,
                        const double             frame_delta) {
     int left_hand_id = scene_fetch_object_id(curr_scene, "left_hand");
     int right_hand_id = scene_fetch_object_id(curr_scene, "right_hand");
-    int ship_1_id = scene_fetch_object_id(curr_scene, "ship_1");
-    int ship_2_id = scene_fetch_object_id(curr_scene, "ship_2");
+    /*int ship_1_id = scene_fetch_object_id(curr_scene, "ship_1");
+    int ship_2_id = scene_fetch_object_id(curr_scene, "ship_2");*/
 
     curr_scene->position[right_hand_id] = input->controller_positions[RIGHT_CONTROLLER];
     curr_scene->position[left_hand_id] = input->controller_positions[LEFT_CONTROLLER];
@@ -32,9 +32,9 @@ void test_scene_update(sScene                  *curr_scene,
     /*curr_scene->rotation[ship_2_id] = input->controller_rotations[LEFT_CONTROLLER];
     curr_scene->rotation[ship_1_id] = input->controller_rotations[RIGHT_CONTROLLER];*/
 
-    sVector3 collider_pos = curr_scene->collision_controller.origin_points[manifolds[0].collider2_index];
+    sVector3 collider_pos = curr_scene->collision_controller.origin_points[manifolds[0].obj2_index];
 
-    if (manifold_count > 0) {
+    if (false) {
         sVector3 col_normal = manifolds[0].collision_normal;
         float max_depth = 0.0f;
 
@@ -50,6 +50,6 @@ void test_scene_update(sScene                  *curr_scene,
         collider_pos.y += col_normal.y;
         collider_pos.z += col_normal.z;
 
-        curr_scene->collision_controller.origin_points[manifolds[0].collider2_index] = collider_pos;
+        curr_scene->collision_controller.origin_points[manifolds[0].obj2_index] = collider_pos;
     }
 }

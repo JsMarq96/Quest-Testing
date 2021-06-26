@@ -24,7 +24,7 @@ static double get_time() {
     timespec res;
     clock_gettime(CLOCK_MONOTONIC, &res);
 
-    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+    return res.tv_sec + (double) res.tv_nsec / 1e9;
 }
 
 

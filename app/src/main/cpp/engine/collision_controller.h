@@ -36,6 +36,11 @@ enum eColliderAttributes : unsigned char {
 #define DEBUG TRUE
 
 struct sColliderController {
+    /// POINTER THE CURRENT SCENE'S DATA
+    sVector3       *position;
+    sQuaternion4   *rotation;
+    bool           *enabled;
+
     /// COLLIDER BEHAVIOUR
     bool           enabled_colliders       [MAX_SCENE_COLLIDERS] = { false };
     int            object_entanglement     [MAX_SCENE_COLLIDERS] = { -1 };
@@ -43,10 +48,9 @@ struct sColliderController {
     eColliderType  collider_type           [MAX_SCENE_COLLIDERS] = { OBB_COLLIDER };
 
     /// COLLIDER POSITION, SIZE & SHAPE
-    sVector3       entangled_position      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
     sVector3       origin_points           [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
-    sVector3       box_collider_sizes      [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
-    sQuaternion4   box_collider_rotations  [MAX_SCENE_COLLIDERS] = { sQuaternion4{0.0f, 0.0f, 0.0f, 0.0f} };
+    sVector3       scale                   [MAX_SCENE_COLLIDERS] = { sVector3{0.0f, 0.f, 0.0f} };
+    sMat44         box_transform           [MAX_SCENE_COLLIDERS] = {  };
     float          sphere_collider_radius  [MAX_SCENE_COLLIDERS] = { 0.0f };
     sVector3       collider_raw_vertex     [MAX_SCENE_COLLIDERS][15] = { 0.0f };
 
@@ -63,12 +67,13 @@ struct sColliderController {
 };
 
 //// LIFECYCLE FUNCTIONS
-void CC_init(sColliderController *col_contr);
+void CC_init(sColliderController *col_contr,
+             bool                *enabled_objs,
+             sVector3            *obj_positions,
+             sQuaternion4        *obj_rotation);
 
 void CC_update(sColliderController    *col_contr,
-               const sVector3         *obj_positions,
-               const sQuaternion4     *obj_rotations,
-               sCollisionManifold             *result_collisions,
+               sCollisionManifold     *result_collisions,
                int                    *collision_count);
 
 void CC_render(const sColliderController *col_contr,
@@ -77,35 +82,12 @@ void CC_render(const sColliderController *col_contr,
 
 
 //// COLLIDER MANAGING FUNCTIONS
-int CC_add_AABB_collider(sColliderController *controller,
-                         const sVector3      position,
-                         const float         width,
-                         const float         heigth,
-                         const float         depth);
-
 int CC_add_OBB_collider(sColliderController *controller,
                         const sVector3       position,
                         const sQuaternion4   rotation,
                         const float          width,
                         const float          heigth,
                         const float          depth);
-
-inline sVector3 CC_get_collider_center(const sColliderController  *controller,
-                                       const int                   index_id) {
-    sVector3 col_origin = controller->origin_points[index_id];
-    sVector3 box_sizes{}, tmp{}, sizes{};
-    switch(controller->collider_type[index_id]) {
-        case SPHERE_COLLIDER:
-            return col_origin;
-        case OBB_COLLIDER:
-            box_sizes = controller->box_collider_sizes[index_id];
-            tmp =  sVector3{ col_origin.x + (sizes.x / 2.0f),
-                                      col_origin.y + (sizes.y / 2.0f),
-                                      col_origin.z + (sizes.z / 2.0f)};
-            tmp = rotate_vector3(tmp, controller->box_collider_rotations[index_id]);
-            return tmp;
-    }
-}
 
 //// COLLISION TESTING FUNCTIONS
 inline bool test_AABB_AABB_collision(const sVector3  aabb_center1,

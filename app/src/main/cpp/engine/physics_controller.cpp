@@ -19,8 +19,8 @@ void PHYS_resolve_collisions(sPhysicsController       *phys_controller,
                              const int                 manifold_count) {
 
     for(int i = 0; i < manifold_count; i++) {
-        int index_a = manifolds[i].collider1_index;
-        int index_b = manifolds[i].collider2_index;
+        int index_a = manifolds[i].obj1_index;
+        int index_b = manifolds[i].obj2_index;
         sVector3 col_normal = manifolds[i].collision_normal;
 
         sVector3 relative_speed = { phys_controller->pos_speed[index_a].x - phys_controller->pos_speed[index_b].x,
@@ -57,14 +57,15 @@ void PHYS_update(sPhysicsController  *phys_controller,
         }
         // Add gravity
         if (phys_controller->attributes[i] & AFFECTED_GRAVITY) {
-            phys_controller->position[i].x += (GRAVITY_CONSTANT / phys_controller->mass[i]) * delta_time;
-            phys_controller->position[i].y += (GRAVITY_CONSTANT / phys_controller->mass[i]) * delta_time;
-            phys_controller->position[i].z += (GRAVITY_CONSTANT / phys_controller->mass[i]) * delta_time;
-        }
 
-        phys_controller->position[i].x += phys_controller->pos_speed[i].x * delta_time;
+        }
+        //phys_controller->pos_speed[i].y -= (GRAVITY_CONSTANT / phys_controller->mass[i]);
+
+        sVector3 temp = phys_controller->position[i];
+
+        /*phys_controller->position[i].x += phys_controller->pos_speed[i].x * delta_time;
         phys_controller->position[i].y += phys_controller->pos_speed[i].y * delta_time;
-        phys_controller->position[i].z += phys_controller->pos_speed[i].z * delta_time;
+        phys_controller->position[i].z += phys_controller->pos_speed[i].z * delta_time;*/
 
     }
 }
