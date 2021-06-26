@@ -126,6 +126,8 @@ void ENGINE_add_scene(sEngineInstance   *engine,
         float w, x, y, z;
         sVector3 bounding_volume{};
         sVector3 bounding_volume_pos{};
+        bool is_static = false;
+        float mass = 0.0f;
 
         memset(buffer, '\0', 50 * sizeof(char));
 
@@ -151,7 +153,7 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                    &bounding_volume_pos.x,
                    &bounding_volume_pos.y,
                    &bounding_volume_pos.z);
-        } else if (line_buffer[0] == 'M') { // Get mesh and material
+        } else if (line_buffer[0] == 'M' && line_buffer[1] == 'E') { // Get mesh and material
             sscanf(line_buffer, "MESH-MATERIAL %d %d\n", &mesh_index, &material_index);
             mesh_index += STARTUP_MESH_COUNT;
             material_index += STARTUP_MATERIAL_COUNT;
@@ -162,7 +164,13 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                              material_index,
                              position,
                              bounding_volume,
-                             bounding_volume_pos);
+                             bounding_volume_pos,
+                             is_static,
+                             mass);
+        } else if (line_buffer[0] == 'S' && line_buffer[1] == 'T') {
+            is_static = true;
+        } else if (line_buffer[0] == 'M' && line_buffer[1] == 'A') {
+            sscanf(line_buffer, "MASS %f\n", &mass);
         }
 
     }

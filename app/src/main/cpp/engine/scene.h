@@ -110,6 +110,16 @@ int scene_add_object(sScene          *scene,
                      const sVector3  bounding_box_size,
                      const sVector3  bounding_box_pos);
 
+int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
+                     const int       mesh_id,
+                     const int       material_id,
+                     const sVector3  position,
+                     const sVector3  bounding_box_size,
+                     const sVector3  bounding_box_pos,
+                     const bool      is_static,
+                     const float     mass);
+
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,
                        const sVector3 dimensions,

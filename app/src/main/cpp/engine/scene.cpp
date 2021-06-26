@@ -162,6 +162,32 @@ int scene_add_object(sScene          *scene,
     return obj_id;
 }
 
+int scene_add_object(sScene          *scene,
+                     const char      *obj_tag,
+                     const int       mesh_id,
+                     const int       material_id,
+                     const sVector3  position,
+                     const sVector3  bounding_box_size,
+                     const sVector3  bounding_box_pos,
+                     const bool      is_static,
+                     const float     mass) {
+    int obj_id = scene_add_object(scene,
+                                  obj_tag,
+                                  mesh_id,
+                                  material_id,
+                                  position,
+                                  bounding_box_size,
+                                  bounding_box_pos);
+
+    if (is_static) {
+        scene->physics_controller.attributes[obj_id] |= IS_UNMOVABLE;
+    }
+
+    PHYS_set_mass(&scene->physics_controller,
+                  obj_id,
+                  mass);
+}
+
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,
                        const sVector3 dimensions,
