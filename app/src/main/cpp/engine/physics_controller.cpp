@@ -29,9 +29,7 @@ void PHYS_resolve_collisions(sPhysicsController       *phys_controller,
         float contact_speed = dot_prod(relative_speed, col_normal);
 
         //
-        if (contact_speed > 0) {
-            continue;
-        }
+
 
         float impulse_scalar = (-1.0f * contact_speed) / (phys_controller->inv_mass[index_a] + phys_controller->inv_mass[index_b]);
         sVector3 impulse = { impulse_scalar * col_normal.x,
@@ -39,10 +37,10 @@ void PHYS_resolve_collisions(sPhysicsController       *phys_controller,
                              impulse_scalar * col_normal.z };
 
         PHYS_add_impulse(phys_controller,
-                         index_b,
+                         index_a,
                          impulse);
         PHYS_add_impulse(phys_controller,
-                         index_a,
+                         index_b,
                          sVector3{-impulse.x,
                                   -impulse.y,
                                   -impulse.z});
@@ -57,15 +55,16 @@ void PHYS_update(sPhysicsController  *phys_controller,
         }
         // Add gravity
         if (phys_controller->attributes[i] & AFFECTED_GRAVITY) {
-
+            //phys_controller->pos_speed[i].y -= .08f;//(GRAVITY_CONSTANT / phys_controller->mass[i]);
+            phys_controller->pos_speed[i].y -= GRAVITY_CONSTANT;// / phys_controller->mass[i];
         }
-        //phys_controller->pos_speed[i].y -= (GRAVITY_CONSTANT / phys_controller->mass[i]);
+
 
         sVector3 temp = phys_controller->position[i];
 
-        /*phys_controller->position[i].x += phys_controller->pos_speed[i].x * delta_time;
+        phys_controller->position[i].x += phys_controller->pos_speed[i].x * delta_time;
         phys_controller->position[i].y += phys_controller->pos_speed[i].y * delta_time;
-        phys_controller->position[i].z += phys_controller->pos_speed[i].z * delta_time;*/
+        phys_controller->position[i].z += phys_controller->pos_speed[i].z * delta_time;
 
     }
 }

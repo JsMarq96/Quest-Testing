@@ -37,24 +37,23 @@ void CC_update(sColliderController    *col_contr,
 
         int obj_index = col_contr->object_entanglement[i];
 
-        sMat44 rotate, scale;
-        rotate.rotate(&col_contr->rotation[obj_index]);
-        scale.set_scale(col_contr->scale[obj_index]);
+        col_contr->box_transform[i].set_identity();
+        col_contr->box_transform[i].set_scale(col_contr->scale[obj_index]);
+        col_contr->box_transform[i].rotate(&col_contr->rotation[obj_index]);
 
-        rotate.multiply(&scale);
-        rotate.set_position(sVector3{col_contr->origin_points[i].x + col_contr->position[obj_index].x,
-                                     col_contr->origin_points[i].y + col_contr->position[obj_index].y,
-                                     col_contr->origin_points[i].z + col_contr->position[obj_index].z });
-
-
-        col_contr->box_transform[i] = rotate;
+        col_contr->box_transform[i].set_position(sVector3{col_contr->origin_points[i].x + col_contr->position[obj_index].x,
+                                                          col_contr->origin_points[i].y + col_contr->position[obj_index].y,
+                                                          col_contr->origin_points[i].z + col_contr->position[obj_index].z });
     }
 
     // Detect collisions
     int collision_index = 0;
     // TODO: Naive bubblesort, fine for this stage, but could need some optimization on the future
     for(int i = 0; i < enabled_collider_count; i++) {
-        for(int j = i+1; j < enabled_collider_count; j++) {
+        for(int j = i; j < enabled_collider_count; j++) {
+            if (j == i) {
+                continue;
+            }
             int index_1 = enabled_collider_indexing[i];
             int index_2 = enabled_collider_indexing[j];
 

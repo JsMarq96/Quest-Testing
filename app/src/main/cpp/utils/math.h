@@ -187,15 +187,10 @@ union sMat44 {
     }
 
     inline sVector3 multiply(const sVector3   vect) const{
-        sVector4 result {vect.x, vect.y, vect.z, 1.0f};
-        for (int i = 0; i < 4; i++) {
-            result.raw_values[i] = (vect.raw_values[0] * mat_values[i][0]) +
-                                   (vect.raw_values[1] * mat_values[i][1]) +
-                                   (vect.raw_values[2] * mat_values[i][2]) +
-                                   (vect.raw_values[3] * mat_values[i][3]);
-        }
-
-        return sVector3{result.x, result.y, result.z};
+        float x = sx1 * vect.x + (sx2 * vect.y + (sx3 * vect.z + px));
+        float y = sy1 * vect.x + (sy2 * vect.y + (sy3 * vect.z + py));
+        float z = sz1 * vect.x + (sz2 * vect.y + (sz3 * vect.z + pz));
+        return sVector3{x, y, z};
     }
 
     // Yoinked from a stackoverlof that yoinked from the MESA implmentation
@@ -357,7 +352,7 @@ inline sVector3 cross_prod(const sVector3 v1, const sVector3 v2) {
 inline sVector3 rotate_vector3(const sVector3 v, const sQuaternion4 quat) {
     sMat44 rot;
     convert_quaternion_to_matrix(&quat, &rot);
-    sVector4 v2 {v.x, v.y, v.z, 0.0f};
+    sVector4 v2 {v.x, v.y, v.z, 1.0f};
 
     sVector4 yt = rot.multiply(v2);
 

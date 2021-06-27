@@ -9,8 +9,10 @@
 
 #include "../utils/math.h"
 
+#include <iostream>
+
 #define MAX_INSTANCE_SIZE 100
-#define GRAVITY_CONSTANT 0.981f
+#define GRAVITY_CONSTANT 0.00981f
 
 enum ePhysicsAttributes : unsigned char {
     IS_UNMOVABLE       = 0b0001,
@@ -54,6 +56,7 @@ inline void PHYS_add_impulse(sPhysicsController *phys_controller,
     tmp.z += inv_mass * impulse.z;
 
     phys_controller->pos_speed[index] = tmp;
+    std::cout << "Impulse: " << tmp.x << " " << tmp.y << " " << tmp.z << std::endl;
 }
 
 /// INLINE FUNCTIONS

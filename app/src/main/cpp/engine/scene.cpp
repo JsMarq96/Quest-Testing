@@ -49,14 +49,15 @@ void scene_update(sScene *scene,
               collision_result,
               &collision_count);
 
-    // Debugging
-    if (collision_count > 0) {
-        scene->obj_highlight_color[0] = sVector3{0.5f, 0.f, 0.f};
-        scene->obj_highlight_color[0] = sVector3{0.5f, 0.f, 0.f};
-    } else {
-        scene->obj_highlight_color[0] = sVector3{1.f, 1.f, 1.f};
-        scene->obj_highlight_color[0] = sVector3{1.f, 1.f, 1.f};
+    for (int i = 0; i < MAX_INSTANCE_SIZE; i++) {
+        scene->obj_highlight_color[i] = sVector3{1.f, 1.f, 1.f};
     }
+
+    for (int i = 0; i < collision_count; i++) {
+        scene->obj_highlight_color[collision_result[i].obj1_index] = sVector3{0.5f, 0.5f * i, 0.f};
+        scene->obj_highlight_color[collision_result[i].obj2_index] = sVector3{0.5f, 0.5f * i, 0.f};
+    }
+
     info("COLLISION COUNT: %d", collision_count);
 
     /// COLLISION RESOLUTION
@@ -275,8 +276,9 @@ int scene_add_object(sScene              *scene,
                      const sQuaternion4  rotation,
                      const sVector3      bounding_box_size,
                      const sVector3      bounding_box_pos,
-                     const bool          is_static,
-                     const float         mass) {
+                     const bool          is_unmovable,
+                     const float         mass,
+                     const bool          affected_by_gravity) {
     int obj_id = scene_add_object(scene,
                                   obj_tag,
                                   mesh_id,
@@ -286,7 +288,7 @@ int scene_add_object(sScene              *scene,
                                   bounding_box_size,
                                   bounding_box_pos);
 
-    if (is_static) {
+    if (is_unmovable) {
         scene->physics_controller.attributes[obj_id] |= IS_UNMOVABLE;
         return obj_id;
     }
@@ -294,6 +296,10 @@ int scene_add_object(sScene              *scene,
     PHYS_set_mass(&scene->physics_controller,
                   obj_id,
                   mass);
+
+    if (affected_by_gravity) {
+        scene->physics_controller.attributes[obj_id] |= AFFECTED_GRAVITY;
+    }
 
     return obj_id;
 }

@@ -97,8 +97,9 @@ int scene_add_object(sScene              *scene,
                      const sQuaternion4  rotation,
                      const sVector3      bounding_box_size,
                      const sVector3      bounding_box_pos,
-                     const bool          is_static,
-                     const float         mass);
+                     const bool          is_unmovable,
+                     const float         mass,
+                     const bool          affected_by_gravity);
 
 int scene_add_collider(sScene          *scene,
                        const sVector3  position,

@@ -61,7 +61,8 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                      sVector3{0.05f, 0.05f, 0.05f},
                      sVector3{},
                      false,
-                     10.f);
+                     10.f,
+                     false);
 
     scene_add_object(new_scene,
                      "right_hand",
@@ -72,7 +73,8 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                      sVector3{0.05f, 0.05f, 0.05f},
                      sVector3{},
                      false,
-                     10.f);
+                     10.f,
+                     false);
 
 
     char *scene_plan = NULL;
@@ -177,7 +179,8 @@ void ENGINE_add_scene(sEngineInstance   *engine,
                              bounding_volume,
                              bounding_volume_pos,
                              is_static,
-                             mass);
+                             mass,
+                             true);
         } else if (line_buffer[0] == 'S' && line_buffer[1] == 'T') {
             is_static = true;
         } else if (line_buffer[0] == 'M' && line_buffer[1] == 'A') {
